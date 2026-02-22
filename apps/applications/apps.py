@@ -2,4 +2,5 @@ from django.apps import AppConfig
 
 
 class ApplicationsConfig(AppConfig):
-    name = 'applications'
+    name = "apps.applications"
+    verbose_name = "Applications"

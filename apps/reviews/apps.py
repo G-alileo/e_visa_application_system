@@ -2,4 +2,5 @@ from django.apps import AppConfig
 
 
 class ReviewsConfig(AppConfig):
-    name = 'reviews'
+    name = "apps.reviews"
+    verbose_name = "Reviews"

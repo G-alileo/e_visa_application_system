@@ -2,4 +2,5 @@ from django.apps import AppConfig
 
 
 class VisasConfig(AppConfig):
-    name = 'visas'
+    name = "apps.visas"
+    verbose_name = "Visas"

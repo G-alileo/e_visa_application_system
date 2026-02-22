@@ -2,4 +2,5 @@ from django.apps import AppConfig
 
 
 class AuditConfig(AppConfig):
-    name = 'audit'
+    name = "apps.audit"
+    verbose_name = "Audit"
