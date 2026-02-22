@@ -4,9 +4,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 from django.core.exceptions import ImproperlyConfigured
 
-# pymysql has no mysqlclient version_info attribute; Django 6 gates the mysql
-# backend on mysqlclient >= 2.2.1. Spoofing the version lets pymysql pass that
-# guard without patching Django itself.
+
 pymysql.version_info = (2, 2, 7, "final", 0)
 pymysql.__version__ = "2.2.7"
 pymysql.install_as_MySQLdb()
@@ -46,8 +44,6 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    # AppConfig dotted paths are required because all apps live under the apps/
-    # package; using bare app names would break Django's app registry lookup.
     "apps.accounts.apps.AccountsConfig",
     "apps.visas.apps.VisasConfig",
     "apps.applications.apps.ApplicationsConfig",
@@ -56,6 +52,8 @@ INSTALLED_APPS = [
     "apps.reviews.apps.ReviewsConfig",
     "apps.audit.apps.AuditConfig",
     "apps.recommendations.apps.RecommendationsConfig",
+    "rest_framework",
+    "drf_spectacular",
 ]
 
 MIDDLEWARE = [
@@ -120,7 +118,10 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = "/static/"
-STATICFILES_DIRS = [BASE_DIR / "static"]
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+    BASE_DIR / "public",
+]
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
@@ -128,3 +129,25 @@ MEDIA_ROOT = BASE_DIR / "media"
 LOGIN_URL = "/auth/login/"
 LOGIN_REDIRECT_URL = "/applications/dashboard/"
 LOGOUT_REDIRECT_URL = "/auth/login/"
+
+
+REST_FRAMEWORK = {
+    "DEFAULT_RENDERER_CLASSES": [
+        "rest_framework.renderers.JSONRenderer",
+        "rest_framework.renderers.BrowsableAPIRenderer",
+    ],
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+}
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "E-Visa System API",
+    "DESCRIPTION": (
+        "Internal API powering the E-Visa Application Portal.\n\n"
+        "All endpoints require authentication unless stated otherwise.  "
+        "Role-based access is enforced at the view level via RoleRequiredMixin."
+    ),
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,  # hide the schema endpoint from its own output
+    "CONTACT": {"name": "E-Visa Support"},
+    "LICENSE": {"name": "Proprietary"},
+}

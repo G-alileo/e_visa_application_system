@@ -1,0 +1,14 @@
+openapi: 3.0.3
+info:
+  title: E-Visa System API
+  version: 1.0.0
+  description: |-
+    Internal API powering the E-Visa Application Portal.
+
+    All endpoints require authentication unless stated otherwise.  Role-based access is enforced at the view level via RoleRequiredMixin.
+  contact:
+    name: E-Visa Support
+  license:
+    name: Proprietary
+paths: {}
+components: {}

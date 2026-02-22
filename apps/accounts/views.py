@@ -58,3 +58,11 @@ class UserLogoutView(LoginRequiredMixin, View):
     def post(self, request):
         logout(request)
         return redirect("accounts:login")
+
+
+class HomeRedirectView(View):
+
+    def get(self, request):
+        if request.user.is_authenticated:
+            return redirect(_role_home(request.user))
+        return redirect("accounts:login")
