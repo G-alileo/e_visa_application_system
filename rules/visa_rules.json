@@ -22,7 +22,16 @@
       "eligible_nationalities": [],
       "required_documents": ["PASSPORT", "PHOTO", "BANK_STATEMENT", "INVITATION_LETTER", "ACCOMMODATION_PROOF"],
       "min_days_before_entry": 30
+    },
+    "Nonimmigrant": {
+      "blocked_nationalities": [],
+      "eligible_nationalities": [],
+      "required_documents": ["PASSPORT", "PHOTO", "BANK_STATEMENT"],
+      "min_days_before_entry": 7,
+      "notes": "eligible_nationalities empty means all nationalities allowed unless blocked"
     }
   },
   "default_required_documents": ["PASSPORT", "PHOTO"]
 }
+
+
