@@ -1,0 +1,85 @@
+{% extends "base/base.html" %}
+{% block title %}Audit Logs — E-Visa Portal{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-8 space-y-5">
+
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-black" style="color:var(--text)">Audit Logs</h1>
+      <p class="text-sm text-slate-500 mt-1">Immutable record of all application state transitions</p>
+    </div>
+    <!-- Search -->
+    <form method="get" class="flex items-center gap-2">
+      <div class="relative">
+        <span class="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-[18px] text-slate-400">search</span>
+        <input type="text" name="q" value="{{ query }}" placeholder="Search by application ID…"
+          class="pl-9 pr-4 py-2 text-sm border border-primary/20 rounded-lg bg-white/60 focus:ring-2 focus:ring-primary/20 focus:border-primary focus:outline-none w-56"
+          style="font-family:inherit" />
+      </div>
+      <button type="submit" class="btn-primary text-sm py-2">Search</button>
+      {% if query %}
+      <a href="{% url 'audit:logs' %}" class="btn-secondary text-sm py-2">Clear</a>
+      {% endif %}
+    </form>
+  </div>
+
+  {% if logs %}
+  <div class="glass-card overflow-hidden">
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="border-b border-primary/10 bg-primary/5">
+          <th class="text-left px-4 py-3 font-semibold text-xs uppercase tracking-wider text-slate-500">Timestamp</th>
+          <th class="text-left px-4 py-3 font-semibold text-xs uppercase tracking-wider text-slate-500">Application</th>
+          <th class="text-left px-4 py-3 font-semibold text-xs uppercase tracking-wider text-slate-500">Transition</th>
+          <th class="text-left px-4 py-3 font-semibold text-xs uppercase tracking-wider text-slate-500">Actor</th>
+          <th class="text-left px-4 py-3 font-semibold text-xs uppercase tracking-wider text-slate-500">Reason</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for log in logs %}
+        <tr class="border-b border-primary/5 table-row">
+          <td class="px-4 py-3 text-xs text-slate-500 whitespace-nowrap">
+            {{ log.timestamp|date:"N j, Y H:i:s" }}
+          </td>
+          <td class="px-4 py-3">
+            <a href="{% url 'applications:status' pk=log.application.pk %}"
+               class="text-primary font-mono text-xs hover:underline">
+              {{ log.application.pk|stringformat:"s"|truncatechars:14 }}
+            </a>
+            <p class="text-[10px] text-slate-400">{{ log.application.visa_type.name }}</p>
+          </td>
+          <td class="px-4 py-3">
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <span class="status-pill s-{{ log.previous_status }} text-[9px]">{{ log.previous_status|default:"—" }}</span>
+              <span class="material-symbols-outlined text-[12px] text-slate-400">arrow_forward</span>
+              <span class="status-pill s-{{ log.new_status }} text-[9px]">{{ log.new_status }}</span>
+            </div>
+          </td>
+          <td class="px-4 py-3 text-xs">
+            {% if log.actor %}
+            <span class="font-medium" style="color:var(--text)">{{ log.actor.email }}</span>
+            <span class="text-slate-400 block text-[10px]">{{ log.actor.role }}</span>
+            {% else %}
+            <span class="text-slate-400 italic">SYSTEM</span>
+            {% endif %}
+          </td>
+          <td class="px-4 py-3 text-xs text-slate-600 max-w-xs">{{ log.reason|truncatechars:100|default:"—" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <p class="text-xs text-slate-400 text-right">Showing up to 500 most recent entries.</p>
+  {% else %}
+  <div class="glass-card p-12 text-center">
+    <span class="material-symbols-outlined text-[48px] text-slate-300 block mb-4">shield</span>
+    <p class="font-semibold" style="color:var(--text)">No audit logs{% if query %} matching "{{ query }}"{% endif %}</p>
+    {% if query %}
+    <a href="{% url 'audit:logs' %}" class="btn-secondary mt-4 inline-flex text-sm py-2">Clear Search</a>
+    {% endif %}
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

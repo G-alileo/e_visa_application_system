@@ -1,0 +1,122 @@
+{% extends "base/base.html" %}
+{% block title %}System Reports — E-Visa Portal{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 py-8 space-y-8">
+
+  <div>
+    <h1 class="text-2xl font-black" style="color:var(--text)">System Reports</h1>
+    <p class="text-sm text-slate-500 mt-1">Key performance indicators and application statistics.</p>
+  </div>
+
+  <!-- KPI Cards -->
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="glass-card p-5 text-center">
+      <span class="material-symbols-outlined text-[32px] block mb-2" style="color:var(--primary)">inventory_2</span>
+      <p class="text-3xl font-black" style="color:var(--text)">{{ total }}</p>
+      <p class="text-xs text-slate-500 mt-1 uppercase tracking-wider">Total Applications</p>
+    </div>
+    <div class="glass-card p-5 text-center">
+      <span class="material-symbols-outlined text-[32px] block mb-2 text-sky-500">schedule</span>
+      <p class="text-3xl font-black text-sky-600">{{ this_month }}</p>
+      <p class="text-xs text-slate-500 mt-1 uppercase tracking-wider">Last 30 Days</p>
+    </div>
+    <div class="glass-card p-5 text-center">
+      <span class="material-symbols-outlined text-[32px] block mb-2 text-emerald-500">verified</span>
+      <p class="text-3xl font-black text-emerald-600">{{ issued }}</p>
+      <p class="text-xs text-slate-500 mt-1 uppercase tracking-wider">Visas Issued</p>
+    </div>
+    <div class="glass-card p-5 text-center">
+      <span class="material-symbols-outlined text-[32px] block mb-2 text-violet-500">percent</span>
+      <p class="text-3xl font-black text-violet-600">{{ approval_rate|floatformat:1 }}%</p>
+      <p class="text-xs text-slate-500 mt-1 uppercase tracking-wider">Approval Rate</p>
+    </div>
+  </div>
+
+  <!-- Status Breakdown -->
+  <div class="glass-card overflow-hidden">
+    <h2 class="text-base font-bold px-5 pt-5 pb-3" style="color:var(--text)">Application Status Breakdown</h2>
+    {% if status_counts %}
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="bg-primary/5 border-b border-primary/10">
+          <th class="text-left px-5 py-2.5 text-xs uppercase tracking-wider text-slate-500">Status</th>
+          <th class="text-right px-5 py-2.5 text-xs uppercase tracking-wider text-slate-500">Count</th>
+          <th class="text-right px-5 py-2.5 text-xs uppercase tracking-wider text-slate-500">Share</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for status, count in status_counts.items %}
+        <tr class="border-b border-primary/5 hover:bg-primary/5 transition-colors">
+          <td class="px-5 py-3">
+            <span class="status-pill s-{{ status }} text-[10px]">{{ status }}</span>
+          </td>
+          <td class="px-5 py-3 text-right font-semibold" style="color:var(--text)">{{ count }}</td>
+          <td class="px-5 py-3 text-right text-slate-500 text-xs">
+            {% if total %}
+            {% widthratio count total 100 %}%
+            {% else %}—
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr class="bg-primary/5 border-t border-primary/20">
+          <td class="px-5 py-2.5 text-xs font-bold uppercase text-slate-600">Total</td>
+          <td class="px-5 py-2.5 text-right font-black text-sm" style="color:var(--text)">{{ total }}</td>
+          <td></td>
+        </tr>
+      </tfoot>
+    </table>
+    {% else %}
+    <p class="text-slate-400 text-sm text-center pb-6">No applications in the system.</p>
+    {% endif %}
+  </div>
+
+  <!-- Visa Types Summary -->
+  {% if visa_types %}
+  <div class="glass-card overflow-hidden">
+    <h2 class="text-base font-bold px-5 pt-5 pb-3" style="color:var(--text)">Configured Visa Types</h2>
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="bg-primary/5 border-b border-primary/10">
+          <th class="text-left px-5 py-2.5 text-xs uppercase tracking-wider text-slate-500">Code</th>
+          <th class="text-left px-5 py-2.5 text-xs uppercase tracking-wider text-slate-500">Name</th>
+          <th class="text-right px-5 py-2.5 text-xs uppercase tracking-wider text-slate-500">Fee</th>
+          <th class="text-right px-5 py-2.5 text-xs uppercase tracking-wider text-slate-500">Max Stay</th>
+          <th class="text-center px-5 py-2.5 text-xs uppercase tracking-wider text-slate-500">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for vt in visa_types %}
+        <tr class="border-b border-primary/5 hover:bg-primary/5 transition-colors">
+          <td class="px-5 py-3 font-mono text-xs text-slate-700">{{ vt.code }}</td>
+          <td class="px-5 py-3 font-medium" style="color:var(--text)">{{ vt.name }}</td>
+          <td class="px-5 py-3 text-right text-slate-600">${{ vt.fee_amount|floatformat:2 }}</td>
+          <td class="px-5 py-3 text-right text-slate-600">{{ vt.max_stay_days }} days</td>
+          <td class="px-5 py-3 text-center">
+            {% if vt.is_active %}
+            <span class="status-pill s-APPROVED text-[10px]">Active</span>
+            {% else %}
+            <span class="status-pill s-REJECTED text-[10px]">Inactive</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+
+  {% if is_admin %}
+  <div class="text-right">
+    <a href="{% url 'visas:visa_types' %}" class="btn-secondary text-sm py-2 inline-flex items-center gap-1.5">
+      <span class="material-symbols-outlined text-[16px]">settings</span>
+      Manage Visa Types
+    </a>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

@@ -1,0 +1,94 @@
+{% extends "base/base.html" %}
+{% block title %}Officer Queue — E-Visa Portal{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 py-8 space-y-6">
+
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-black" style="color:var(--text)">Review Queue</h1>
+      <p class="text-sm text-slate-500 mt-1">Applications awaiting officer decision</p>
+    </div>
+    <div class="flex gap-2">
+      <a href="{% url 'reviews:history' %}" class="btn-secondary text-sm py-2">
+        <span class="material-symbols-outlined text-[18px]">history</span>
+        Decision History
+      </a>
+      {% if is_supervisor %}
+      <a href="{% url 'visas:supervisor_override' %}" class="btn-primary text-sm py-2">
+        <span class="material-symbols-outlined text-[18px]">gavel</span>
+        Override Panel
+      </a>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Under Review queue -->
+  <div class="space-y-4">
+    <h2 class="font-bold text-base flex items-center gap-2" style="color:var(--text)">
+      <span class="size-6 bg-amber-100 text-amber-700 rounded-full flex items-center justify-center font-bold text-xs">{{ queue|length }}</span>
+      Under Review
+    </h2>
+
+    {% if queue %}
+    <div class="space-y-3">
+      {% for app in queue %}
+      <div class="glass-card p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="font-bold" style="color:var(--text)">{{ app.visa_type.name }}</span>
+            <span class="status-pill s-{{ app.status }}">{{ app.get_status_display }}</span>
+          </div>
+          <div class="flex items-center gap-4 text-xs text-slate-500">
+            <span>{{ app.applicant.email }}</span>
+            <span>{{ app.nationality|upper }}</span>
+            {% if app.submitted_at %}
+            <span>Submitted {{ app.submitted_at|timesince }} ago</span>
+            {% endif %}
+          </div>
+        </div>
+        <a href="{% url 'reviews:review' pk=app.pk %}" class="btn-primary text-sm py-2 shrink-0">
+          <span class="material-symbols-outlined text-[18px]">rate_review</span>
+          Review
+        </a>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="glass-card p-10 text-center">
+      <span class="material-symbols-outlined text-[40px] text-green-500 block mb-3">check_circle</span>
+      <p class="font-semibold" style="color:var(--text)">Queue is clear</p>
+      <p class="text-sm text-slate-500 mt-1">No applications are currently awaiting review.</p>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Pending Info queue -->
+  {% if pending_info_queue %}
+  <div class="space-y-4">
+    <h2 class="font-bold text-base flex items-center gap-2" style="color:var(--text)">
+      <span class="size-6 bg-yellow-100 text-yellow-700 rounded-full flex items-center justify-center font-bold text-xs">{{ pending_info_queue|length }}</span>
+      Pending Additional Information
+    </h2>
+    <div class="space-y-3">
+      {% for app in pending_info_queue %}
+      <div class="glass-card p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 opacity-75">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="font-semibold text-sm" style="color:var(--text)">{{ app.visa_type.name }}</span>
+            <span class="status-pill s-{{ app.status }}">{{ app.get_status_display }}</span>
+          </div>
+          <p class="text-xs text-slate-500">{{ app.applicant.email }} &bull; {{ app.nationality|upper }}</p>
+        </div>
+        <a href="{% url 'applications:status' pk=app.pk %}" class="btn-secondary text-xs py-1.5 px-3">
+          View
+        </a>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

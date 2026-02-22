@@ -1,0 +1,84 @@
+{% extends "base/base.html" %}
+{% block title %}My Applications — E-Visa Portal{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 py-8 space-y-6">
+
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-black" style="color:var(--text)">My Applications</h1>
+      <p class="text-sm text-slate-500 mt-1">Track and manage your e-visa applications</p>
+    </div>
+    {% if can_create %}
+    <a href="{% url 'applications:create' %}" class="btn-primary">
+      <span class="material-symbols-outlined text-[20px]">add</span>
+      New Application
+    </a>
+    {% endif %}
+  </div>
+
+  <!-- Application list -->
+  {% if applications %}
+  <div class="space-y-3">
+    {% for app in applications %}
+    <a href="{% url 'applications:status' pk=app.pk %}"
+       class="glass-card block p-5 no-underline hover:shadow-md transition-shadow group">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="font-bold text-base" style="color:var(--text)">
+              {{ app.visa_type.name }}
+            </span>
+            <span class="status-pill s-{{ app.status }}">{{ app.get_status_display }}</span>
+          </div>
+          <div class="flex items-center gap-4 text-xs text-slate-500">
+            <span class="flex items-center gap-1">
+              <span class="material-symbols-outlined text-[14px]">flag</span>
+              {{ app.nationality|upper }}
+            </span>
+            <span class="flex items-center gap-1">
+              <span class="material-symbols-outlined text-[14px]">calendar_today</span>
+              Entry: {{ app.intended_entry_date|date:"N j, Y" }}
+            </span>
+            <span class="flex items-center gap-1">
+              <span class="material-symbols-outlined text-[14px]">schedule</span>
+              Created {{ app.created_at|timesince }} ago
+            </span>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button class="btn-secondary text-xs py-1.5 px-3">
+            <span class="material-symbols-outlined text-[16px]">visibility</span>
+            View
+          </button>
+          {% if app.status == "DRAFT" %}
+          <a href="{% url 'applications:upload' pk=app.pk %}"
+             class="btn-primary text-xs py-1.5 px-3"
+             onclick="event.stopPropagation()">
+            <span class="material-symbols-outlined text-[16px]">upload</span>
+            Continue
+          </a>
+          {% endif %}
+        </div>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+  {% else %}
+  <!-- Empty state -->
+  <div class="glass-card p-12 text-center">
+    <div class="size-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-5">
+      <span class="material-symbols-outlined text-[40px] text-primary/70">travel_explore</span>
+    </div>
+    <h2 class="text-lg font-bold mb-2" style="color:var(--text)">No applications yet</h2>
+    <p class="text-slate-500 text-sm mb-6">Start your e-visa journey by creating your first application.</p>
+    <a href="{% url 'applications:create' %}" class="btn-primary">
+      <span class="material-symbols-outlined text-[20px]">add</span>
+      Start New Application
+    </a>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

@@ -1,0 +1,73 @@
+{% extends "base/base.html" %}
+{% block title %}New Application — E-Visa Portal{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 py-8">
+  <!-- Breadcrumb -->
+  <nav class="text-sm text-slate-500 mb-6 flex items-center gap-1">
+    <a href="{% url 'applications:dashboard' %}" class="hover:text-primary transition-colors">My Applications</a>
+    <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+    <span class="font-medium" style="color:var(--text)">New Application</span>
+  </nav>
+
+  <div class="glass-card p-8">
+    <div class="flex items-center gap-3 mb-7">
+      <div class="size-10 bg-primary/10 rounded-lg flex items-center justify-center text-primary">
+        <span class="material-symbols-outlined">add_circle</span>
+      </div>
+      <div>
+        <h1 class="text-xl font-black" style="color:var(--text)">Create Application</h1>
+        <p class="text-xs text-slate-500">Fill in your travel details below</p>
+      </div>
+    </div>
+
+    <form method="post" class="space-y-6">
+      {% csrf_token %}
+
+      {% if form.non_field_errors %}
+      <div class="glass rounded-lg px-4 py-3 text-sm bg-red-50/90 text-red-700">
+        {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+      </div>
+      {% endif %}
+
+      <div class="form-field">
+        <label for="{{ form.visa_type.id_for_label }}">Visa Type</label>
+        {{ form.visa_type }}
+        <span class="text-xs text-slate-400">Select the visa category that matches your travel purpose</span>
+        {% for e in form.visa_type.errors %}<span class="form-error">{{ e }}</span>{% endfor %}
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <div class="form-field">
+          <label for="{{ form.nationality.id_for_label }}">Nationality (ISO code)</label>
+          {{ form.nationality }}
+          <span class="text-xs text-slate-400">2-letter code, e.g. NG, US, GB</span>
+          {% for e in form.nationality.errors %}<span class="form-error">{{ e }}</span>{% endfor %}
+        </div>
+        <div class="form-field">
+          <label for="{{ form.intended_entry_date.id_for_label }}">Intended Entry Date</label>
+          {{ form.intended_entry_date }}
+          {% for e in form.intended_entry_date.errors %}<span class="form-error">{{ e }}</span>{% endfor %}
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label for="{{ form.purpose_of_travel.id_for_label }}">Purpose of Travel</label>
+        {{ form.purpose_of_travel }}
+        {% for e in form.purpose_of_travel.errors %}<span class="form-error">{{ e }}</span>{% endfor %}
+      </div>
+
+      <div class="flex items-center justify-between pt-2">
+        <a href="{% url 'applications:dashboard' %}" class="btn-secondary">
+          <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+          Cancel
+        </a>
+        <button type="submit" class="btn-primary">
+          <span class="material-symbols-outlined text-[18px]">save</span>
+          Save Draft & Continue
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

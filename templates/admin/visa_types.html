@@ -1,0 +1,130 @@
+{% extends "base/base.html" %}
+{% block title %}Visa Type Management — E-Visa Portal{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 py-8 space-y-8">
+
+  <div>
+    <h1 class="text-2xl font-black" style="color:var(--text)">Visa Type Management</h1>
+    <p class="text-sm text-slate-500 mt-1">Configure available visa types, fees, and durations.</p>
+  </div>
+
+  <!-- Existing Types -->
+  {% if visa_types %}
+  <div class="glass-card overflow-hidden">
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="border-b border-primary/10 bg-primary/5">
+          <th class="text-left px-4 py-3 font-semibold text-xs uppercase tracking-wider text-slate-500">Code</th>
+          <th class="text-left px-4 py-3 font-semibold text-xs uppercase tracking-wider text-slate-500">Name</th>
+          <th class="text-left px-4 py-3 font-semibold text-xs uppercase tracking-wider text-slate-500">Fee</th>
+          <th class="text-left px-4 py-3 font-semibold text-xs uppercase tracking-wider text-slate-500">Max Stay</th>
+          <th class="text-left px-4 py-3 font-semibold text-xs uppercase tracking-wider text-slate-500">Status</th>
+          <th class="text-right px-4 py-3 font-semibold text-xs uppercase tracking-wider text-slate-500">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for vt in visa_types %}
+        <tr class="border-b border-primary/5 hover:bg-primary/5 transition-colors">
+          <td class="px-4 py-3 font-mono text-xs text-slate-700">{{ vt.code }}</td>
+          <td class="px-4 py-3 font-medium" style="color:var(--text)">
+            {{ vt.name }}
+            {% if vt.description %}
+            <p class="text-[11px] text-slate-400 font-normal mt-0.5">{{ vt.description|truncatechars:60 }}</p>
+            {% endif %}
+          </td>
+          <td class="px-4 py-3 text-slate-700">${{ vt.fee_amount|floatformat:2 }}</td>
+          <td class="px-4 py-3 text-slate-700">{{ vt.max_stay_days }} days</td>
+          <td class="px-4 py-3">
+            {% if vt.is_active %}
+            <span class="status-pill s-APPROVED text-[10px]">Active</span>
+            {% else %}
+            <span class="status-pill s-REJECTED text-[10px]">Inactive</span>
+            {% endif %}
+          </td>
+          <td class="px-4 py-3 text-right">
+            <form method="post" action="{% url 'visas:toggle_visa_type' pk=vt.pk %}">
+              {% csrf_token %}
+              {% if vt.is_active %}
+              <button type="submit" class="btn-danger text-xs py-1.5 px-3">Deactivate</button>
+              {% else %}
+              <button type="submit" class="btn-secondary text-xs py-1.5 px-3">Activate</button>
+              {% endif %}
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="glass-card p-8 text-center">
+    <span class="material-symbols-outlined text-[40px] text-slate-300 block mb-2">card_travel</span>
+    <p class="text-slate-500 text-sm">No visa types configured yet. Add one below.</p>
+  </div>
+  {% endif %}
+
+  <!-- Create New Visa Type -->
+  <div class="glass-card p-6 space-y-5">
+    <h2 class="text-lg font-bold" style="color:var(--text)">Add New Visa Type</h2>
+    <form method="post" class="space-y-4">
+      {% csrf_token %}
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1.5">Code</label>
+          {{ form.code }}
+          {% if form.code.errors %}
+          <p class="text-red-500 text-xs mt-1">{{ form.code.errors.0 }}</p>
+          {% endif %}
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1.5">Name</label>
+          {{ form.name }}
+          {% if form.name.errors %}
+          <p class="text-red-500 text-xs mt-1">{{ form.name.errors.0 }}</p>
+          {% endif %}
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1.5">Fee Amount (USD)</label>
+          {{ form.fee_amount }}
+          {% if form.fee_amount.errors %}
+          <p class="text-red-500 text-xs mt-1">{{ form.fee_amount.errors.0 }}</p>
+          {% endif %}
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1.5">Max Stay (days)</label>
+          {{ form.max_stay_days }}
+          {% if form.max_stay_days.errors %}
+          <p class="text-red-500 text-xs mt-1">{{ form.max_stay_days.errors.0 }}</p>
+          {% endif %}
+        </div>
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-slate-600 mb-1.5">Description</label>
+        {{ form.description }}
+        {% if form.description.errors %}
+        <p class="text-red-500 text-xs mt-1">{{ form.description.errors.0 }}</p>
+        {% endif %}
+      </div>
+      <div class="flex items-center gap-2">
+        {{ form.is_active }}
+        <label class="text-sm font-medium" style="color:var(--text)">Active on creation</label>
+      </div>
+      {% if form.non_field_errors %}
+      <div class="bg-red-50 border border-red-200 rounded-lg p-3">
+        {% for error in form.non_field_errors %}
+        <p class="text-red-600 text-sm">{{ error }}</p>
+        {% endfor %}
+      </div>
+      {% endif %}
+      <div class="pt-2">
+        <button type="submit" class="btn-primary py-2.5">
+          <span class="material-symbols-outlined text-[16px] align-[-3px] mr-1">add</span>
+          Create Visa Type
+        </button>
+      </div>
+    </form>
+  </div>
+
+</div>
+{% endblock %}

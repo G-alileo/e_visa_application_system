@@ -1,0 +1,55 @@
+{% extends "base/base.html" %}
+{% block title %}Sign In — E-Visa Portal{% endblock %}
+
+{% block content %}
+<div class="min-h-[calc(100vh-140px)] flex items-center justify-center p-4">
+  <div class="glass-card w-full max-w-md p-8 md:p-10 fade-in">
+    <div class="flex flex-col items-center mb-8 text-center">
+      <div class="size-16 flex items-center justify-center bg-primary/10 rounded-full text-primary mb-4">
+        <span class="material-symbols-outlined text-[36px]">lock</span>
+      </div>
+      <h1 class="text-2xl font-black tracking-tight" style="color:var(--text)">Welcome Back</h1>
+      <p class="text-slate-500 text-sm mt-1">Sign in to your E-Visa account</p>
+    </div>
+
+    {% if request.GET.registered %}
+    <div class="glass rounded-lg px-4 py-3 mb-5 text-sm font-medium bg-green-50/90 border-green-300 text-green-800 flex items-center gap-2">
+      <span class="material-symbols-outlined text-[18px]">check_circle</span>
+      Account created! Please sign in.
+    </div>
+    {% endif %}
+
+    <form method="post" class="space-y-5">
+      {% csrf_token %}
+
+      {% if form.non_field_errors %}
+      <div class="glass rounded-lg px-4 py-3 text-sm bg-red-50/90 border-red-300 text-red-700">
+        {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+      </div>
+      {% endif %}
+
+      <div class="form-field">
+        <label for="{{ form.email.id_for_label }}">Email Address</label>
+        {{ form.email }}
+        {% for e in form.email.errors %}<span class="form-error">{{ e }}</span>{% endfor %}
+      </div>
+
+      <div class="form-field">
+        <label for="{{ form.password.id_for_label }}">Password</label>
+        {{ form.password }}
+        {% for e in form.password.errors %}<span class="form-error">{{ e }}</span>{% endfor %}
+      </div>
+
+      <button type="submit" class="btn-primary w-full justify-center py-3 mt-2">
+        <span class="material-symbols-outlined text-[20px]">login</span>
+        Sign In
+      </button>
+    </form>
+
+    <p class="text-center text-sm text-slate-500 mt-6">
+      Don't have an account?
+      <a href="{% url 'accounts:register' %}" class="text-primary font-semibold hover:underline">Register here</a>
+    </p>
+  </div>
+</div>
+{% endblock %}

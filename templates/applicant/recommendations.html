@@ -1,0 +1,78 @@
+{% extends "base/base.html" %}
+{% block title %}Recommendations — E-Visa Portal{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 py-8 space-y-5">
+
+  <!-- Breadcrumb -->
+  <nav class="text-sm text-slate-500 flex items-center gap-1">
+    <a href="{% url 'applications:status' pk=application.pk %}" class="hover:text-primary transition-colors">Application</a>
+    <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+    <span class="font-medium" style="color:var(--text)">Recommendations</span>
+  </nav>
+
+  <!-- Advisory notice -->
+  <div class="glass-card p-4 flex items-start gap-3 border-l-4 border-primary/50 bg-amber-50/50">
+    <span class="material-symbols-outlined text-[22px] text-primary shrink-0">info</span>
+    <div>
+      <p class="font-semibold text-sm" style="color:var(--text)">Advisory Only</p>
+      <p class="text-xs text-slate-500 mt-0.5">These recommendations do not block your submission. They are suggestions to improve your application's chances of success.</p>
+    </div>
+  </div>
+
+  <div>
+    <h1 class="text-xl font-black mb-1" style="color:var(--text)">
+      Application Recommendations
+    </h1>
+    <p class="text-sm text-slate-500">{{ application.visa_type.name }}</p>
+  </div>
+
+  {% if has_recommendations %}
+  <div class="space-y-4">
+    {% for rec in recommendations %}
+    <div class="glass-card p-5">
+      <div class="flex items-start gap-3">
+        <div class="size-9 rounded-lg flex items-center justify-center shrink-0
+          {% if rec.type == 'MISSING_DOCUMENT_WARNING' %}bg-amber-100 text-amber-600
+          {% elif rec.type == 'ELIGIBILITY_WARNING' %}bg-red-100 text-red-600
+          {% elif rec.type == 'VISA_TYPE_SUGGESTION' %}bg-blue-100 text-blue-600
+          {% else %}bg-primary/10 text-primary{% endif %}">
+          <span class="material-symbols-outlined text-[20px]">
+            {% if rec.type == 'MISSING_DOCUMENT_WARNING' %}upload_file
+            {% elif rec.type == 'ELIGIBILITY_WARNING' %}warning
+            {% elif rec.type == 'VISA_TYPE_SUGGESTION' %}lightbulb
+            {% else %}info{% endif %}
+          </span>
+        </div>
+        <div class="flex-1">
+          <p class="font-semibold text-sm" style="color:var(--text)">{{ rec.message }}</p>
+          <p class="text-xs text-slate-500 mt-1 leading-relaxed">{{ rec.explanation }}</p>
+          <span class="mt-2 inline-block text-[10px] font-semibold uppercase tracking-wider text-slate-400 font-mono">
+            {{ rec.type }}
+          </span>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="glass-card p-12 text-center">
+    <span class="material-symbols-outlined text-[48px] text-green-500 block mb-4">check_circle</span>
+    <h2 class="font-bold text-lg mb-2" style="color:var(--text)">Looking Good!</h2>
+    <p class="text-sm text-slate-500">No recommendations at this time. Your application appears to be in order.</p>
+  </div>
+  {% endif %}
+
+  <div class="flex justify-between pt-2">
+    <a href="{% url 'applications:status' pk=application.pk %}" class="btn-secondary">
+      <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+      Back to Application
+    </a>
+    <a href="{% url 'applications:upload' pk=application.pk %}" class="btn-primary">
+      <span class="material-symbols-outlined text-[18px]">upload_file</span>
+      Upload Documents
+    </a>
+  </div>
+
+</div>
+{% endblock %}

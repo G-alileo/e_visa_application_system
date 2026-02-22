@@ -1,0 +1,85 @@
+{% extends "base/base.html" %}
+{% block title %}Payment — E-Visa Portal{% endblock %}
+
+{% block content %}
+<div class="max-w-xl mx-auto px-4 py-8">
+
+  <!-- Breadcrumb -->
+  <nav class="text-sm text-slate-500 mb-6 flex items-center gap-1">
+    <a href="{% url 'applications:status' pk=application.pk %}" class="hover:text-primary transition-colors">Application</a>
+    <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+    <span class="font-medium" style="color:var(--text)">Payment</span>
+  </nav>
+
+  <div class="glass-card p-8 space-y-6">
+    <div class="flex items-center gap-3 mb-2">
+      <div class="size-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
+        <span class="material-symbols-outlined text-[28px]">payments</span>
+      </div>
+      <div>
+        <h1 class="text-xl font-black" style="color:var(--text)">Application Fee Payment</h1>
+        <p class="text-xs text-slate-500">{{ application.visa_type.name }}</p>
+      </div>
+    </div>
+
+    <!-- Application summary -->
+    <div class="rounded-xl bg-primary/5 border border-primary/15 p-4 space-y-2 text-sm">
+      <div class="flex justify-between">
+        <span class="text-slate-500">Application ID</span>
+        <code class="text-xs font-mono">{{ application.pk|stringformat:"s"|truncatechars:16 }}</code>
+      </div>
+      <div class="flex justify-between">
+        <span class="text-slate-500">Visa Type</span>
+        <strong>{{ application.visa_type.name }}</strong>
+      </div>
+      <div class="flex justify-between">
+        <span class="text-slate-500">Nationality</span>
+        <strong>{{ application.nationality|upper }}</strong>
+      </div>
+      <div class="flex justify-between">
+        <span class="text-slate-500">Status</span>
+        <span class="status-pill s-{{ application.status }}">{{ application.get_status_display }}</span>
+      </div>
+    </div>
+
+    <!-- Payment amount -->
+    {% if payment %}
+    <div class="rounded-xl bg-white/70 border border-primary/20 p-5 text-center">
+      <p class="text-sm text-slate-500 mb-1">Amount Due</p>
+      <p class="text-4xl font-black text-primary">${{ payment.amount }}</p>
+      <p class="text-xs text-slate-400 mt-1 font-mono">Ref: {{ payment.reference }}</p>
+    </div>
+
+    {% if already_paid %}
+    <div class="glass rounded-xl px-5 py-4 bg-green-50/80 border-green-200 text-center">
+      <span class="material-symbols-outlined text-[36px] text-green-600 block mx-auto mb-2">check_circle</span>
+      <p class="font-bold text-green-800">Payment Confirmed</p>
+      <p class="text-xs text-green-600 mt-1">Your visa has been issued. Thank you!</p>
+    </div>
+    {% elif can_pay %}
+    <div class="rounded-xl bg-amber-50/60 border border-amber-200/60 p-4 text-xs text-amber-800 flex gap-2">
+      <span class="material-symbols-outlined text-[16px] shrink-0">info</span>
+      This is a simulated payment. Click "Confirm Payment" to mark this fee as paid and issue your visa.
+    </div>
+    <form method="post">
+      {% csrf_token %}
+      <button type="submit" class="btn-primary w-full justify-center py-3 text-base"
+        onclick="return confirm('Confirm payment of ${{ payment.amount }}?')">
+        <span class="material-symbols-outlined text-[22px]">payments</span>
+        Confirm Payment
+      </button>
+    </form>
+    {% else %}
+    <p class="text-center text-sm text-slate-500">Payment is not available at this stage.</p>
+    {% endif %}
+    {% else %}
+    <p class="text-sm text-slate-500 text-center">No payment record found for this application.</p>
+    {% endif %}
+
+    <a href="{% url 'applications:status' pk=application.pk %}" class="btn-secondary w-full justify-center text-sm py-2">
+      <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+      Back to Application
+    </a>
+  </div>
+</div>
+{% endblock %}

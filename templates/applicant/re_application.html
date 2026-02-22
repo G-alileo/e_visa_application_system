@@ -1,0 +1,89 @@
+{% extends "base/base.html" %}
+{% block title %}Re-Apply — E-Visa Portal{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 py-8 space-y-6">
+
+  <!-- Breadcrumb -->
+  <nav class="text-sm text-slate-500 flex items-center gap-1">
+    <a href="{% url 'applications:dashboard' %}" class="hover:text-primary transition-colors">My Applications</a>
+    <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+    <span class="font-medium" style="color:var(--text)">Re-Apply</span>
+  </nav>
+
+  <!-- Previous application context -->
+  <div class="glass-card p-5 flex items-start gap-3 border-l-4 border-red-400/60">
+    <span class="material-symbols-outlined text-[24px] text-red-500 shrink-0">cancel</span>
+    <div>
+      <p class="font-semibold text-sm" style="color:var(--text)">Previous application was rejected</p>
+      <p class="text-xs text-slate-500 mt-1">
+        {{ previous_application.visa_type.name }} &mdash; Submitted {{ previous_application.submitted_at|date:"N j, Y"|default:"—" }}
+      </p>
+      {% for decision in previous_application.review_decisions.all %}
+      {% if decision.decision == "REJECTED" %}
+      <p class="text-xs text-red-700 mt-1 italic">"{{ decision.reason|truncatechars:200 }}"</p>
+      {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- New application form -->
+  <div class="glass-card p-8">
+    <div class="flex items-center gap-3 mb-7">
+      <div class="size-10 bg-primary/10 rounded-lg flex items-center justify-center text-primary">
+        <span class="material-symbols-outlined">replay</span>
+      </div>
+      <div>
+        <h1 class="text-xl font-black" style="color:var(--text)">New Application</h1>
+        <p class="text-xs text-slate-500">Pre-filled from your previous application. Update as needed.</p>
+      </div>
+    </div>
+
+    <form method="post" class="space-y-6">
+      {% csrf_token %}
+
+      {% if form.non_field_errors %}
+      <div class="glass rounded-lg px-4 py-3 text-sm bg-red-50/90 text-red-700">
+        {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+      </div>
+      {% endif %}
+
+      <div class="form-field">
+        <label for="{{ form.visa_type.id_for_label }}">Visa Type</label>
+        {{ form.visa_type }}
+        {% for e in form.visa_type.errors %}<span class="form-error">{{ e }}</span>{% endfor %}
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <div class="form-field">
+          <label for="{{ form.nationality.id_for_label }}">Nationality (ISO code)</label>
+          {{ form.nationality }}
+          {% for e in form.nationality.errors %}<span class="form-error">{{ e }}</span>{% endfor %}
+        </div>
+        <div class="form-field">
+          <label for="{{ form.intended_entry_date.id_for_label }}">Intended Entry Date</label>
+          {{ form.intended_entry_date }}
+          {% for e in form.intended_entry_date.errors %}<span class="form-error">{{ e }}</span>{% endfor %}
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label for="{{ form.purpose_of_travel.id_for_label }}">Purpose of Travel</label>
+        {{ form.purpose_of_travel }}
+        {% for e in form.purpose_of_travel.errors %}<span class="form-error">{{ e }}</span>{% endfor %}
+      </div>
+
+      <div class="flex items-center justify-between pt-2">
+        <a href="{% url 'applications:status' pk=previous_application.pk %}" class="btn-secondary">
+          <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+          Cancel
+        </a>
+        <button type="submit" class="btn-primary">
+          <span class="material-symbols-outlined text-[18px]">save</span>
+          Create New Application
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

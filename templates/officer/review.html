@@ -1,0 +1,185 @@
+{% extends "base/base.html" %}
+{% block title %}Review Application — E-Visa Portal{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 py-8 space-y-6">
+
+  <!-- Breadcrumb -->
+  <nav class="text-sm text-slate-500 flex items-center gap-1">
+    <a href="{% url 'reviews:queue' %}" class="hover:text-primary transition-colors">Queue</a>
+    <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+    <span class="font-medium" style="color:var(--text)">Review Application</span>
+  </nav>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+    <!-- Left: Application detail + audit -->
+    <div class="lg:col-span-2 space-y-5">
+
+      <!-- Application header -->
+      <div class="glass-card p-6">
+        <div class="flex items-start justify-between gap-4 flex-wrap">
+          <div class="space-y-2">
+            <div class="flex items-center gap-2 flex-wrap">
+              <h1 class="text-xl font-black" style="color:var(--text)">{{ application.visa_type.name }}</h1>
+              <span class="status-pill s-{{ application.status }}">{{ application.get_status_display }}</span>
+            </div>
+            <div class="grid grid-cols-2 gap-x-6 gap-y-1 text-sm text-slate-600">
+              <span><strong>Applicant:</strong> {{ application.applicant.email }}</span>
+              <span><strong>Nationality:</strong> {{ application.nationality|upper }}</span>
+              <span><strong>Purpose:</strong> {{ application.purpose_of_travel }}</span>
+              <span><strong>Entry Date:</strong> {{ application.intended_entry_date|date:"N j, Y" }}</span>
+              {% if application.submitted_at %}
+              <span><strong>Submitted:</strong> {{ application.submitted_at|date:"N j, Y H:i" }}</span>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Documents -->
+      <div class="glass-card p-5">
+        <h2 class="font-bold mb-4 flex items-center gap-2 text-sm" style="color:var(--text)">
+          <span class="material-symbols-outlined text-[18px] text-primary">attach_file</span>
+          Documents ({{ application.documents.all|length }})
+        </h2>
+        {% if application.documents.all %}
+        <div class="space-y-2">
+          {% for doc in application.documents.all %}
+          <div class="flex items-center gap-3 p-3 rounded-lg bg-primary/5 border border-primary/10">
+            <span class="material-symbols-outlined text-[20px] text-primary/60">description</span>
+            <div class="flex-1">
+              <p class="text-sm font-semibold" style="color:var(--text)">{{ doc.document_type }}</p>
+              <p class="text-xs text-slate-400">{{ doc.uploaded_at|date:"N j, Y H:i" }}</p>
+            </div>
+            {% if doc.verified %}
+            <span class="status-pill s-APPROVED text-[10px]">Verified</span>
+            {% else %}
+            <span class="status-pill s-PENDING_INFO text-[10px]">Unverified</span>
+            {% endif %}
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-sm text-slate-500 italic">No documents uploaded.</p>
+        {% endif %}
+      </div>
+
+      <!-- Audit trail -->
+      <div class="glass-card p-5">
+        <h2 class="font-bold mb-4 flex items-center gap-2 text-sm" style="color:var(--text)">
+          <span class="material-symbols-outlined text-[18px] text-primary">timeline</span>
+          State History
+        </h2>
+        {% if audit_trail %}
+        <ol class="relative border-l-2 border-primary/20 ml-3 space-y-4">
+          {% for log in audit_trail %}
+          <li class="ml-5">
+            <span class="absolute -left-[10px] flex h-4 w-4 items-center justify-center rounded-full bg-primary/15 ring-2 ring-background">
+              <span class="h-1.5 w-1.5 rounded-full bg-primary"></span>
+            </span>
+            <p class="text-[11px] text-slate-400 mb-0.5">{{ log.timestamp|date:"N j, Y H:i" }}</p>
+            <div class="flex items-center gap-1.5 text-xs flex-wrap">
+              <span class="status-pill s-{{ log.previous_status }} text-[10px]">{{ log.previous_status }}</span>
+              <span class="material-symbols-outlined text-[12px] text-slate-400">arrow_forward</span>
+              <span class="status-pill s-{{ log.new_status }} text-[10px]">{{ log.new_status }}</span>
+              <span class="text-slate-400 ml-1">{% if log.actor %}{{ log.actor.email }}{% else %}SYSTEM{% endif %}</span>
+            </div>
+            {% if log.reason %}<p class="text-xs text-slate-500 mt-0.5 italic">{{ log.reason|truncatechars:120 }}</p>{% endif %}
+          </li>
+          {% endfor %}
+        </ol>
+        {% else %}
+        <p class="text-sm text-slate-500 italic">No history.</p>
+        {% endif %}
+      </div>
+
+    </div>
+
+    <!-- Right: Decision panel -->
+    <div class="space-y-4">
+
+      {% if can_decide %}
+      <!-- Approve -->
+      <div class="glass-card p-5">
+        <h3 class="font-bold text-sm mb-3 text-green-700 flex items-center gap-2">
+          <span class="material-symbols-outlined text-[18px]">check_circle</span>
+          Approve
+        </h3>
+        <form method="post" action="{% url 'reviews:approve' pk=application.pk %}"
+          onsubmit="return confirm('Approve this application?')">
+          {% csrf_token %}
+          <button type="submit" class="w-full justify-center"
+            style="display:flex;align-items:center;gap:6px;background:#16a34a;color:#fff;padding:0.5rem 1rem;border-radius:0.5rem;font-weight:600;font-size:0.875rem;border:none;cursor:pointer;transition:background 0.2s">
+            <span class="material-symbols-outlined text-[18px]">thumb_up</span>
+            Approve Application
+          </button>
+        </form>
+      </div>
+
+      <!-- Reject -->
+      <div class="glass-card p-5">
+        <h3 class="font-bold text-sm mb-3 text-red-700 flex items-center gap-2">
+          <span class="material-symbols-outlined text-[18px]">cancel</span>
+          Reject
+        </h3>
+        <form method="post" action="{% url 'reviews:reject' pk=application.pk %}">
+          {% csrf_token %}
+          <div class="form-field mb-3">
+            <label for="{{ reject_form.reason.id_for_label }}">Reason (required)</label>
+            {{ reject_form.reason }}
+            {% for e in reject_form.reason.errors %}<span class="form-error">{{ e }}</span>{% endfor %}
+          </div>
+          <button type="submit" class="btn-danger w-full justify-center"
+            onclick="return confirm('Reject this application? This cannot be undone.')">
+            <span class="material-symbols-outlined text-[18px]">thumb_down</span>
+            Reject Application
+          </button>
+        </form>
+      </div>
+
+      <!-- Request More Info -->
+      <div class="glass-card p-5">
+        <h3 class="font-bold text-sm mb-3 text-amber-700 flex items-center gap-2">
+          <span class="material-symbols-outlined text-[18px]">help</span>
+          Request More Info
+        </h3>
+        <a href="{% url 'reviews:request_info' pk=application.pk %}" class="btn-secondary w-full justify-center text-sm py-2">
+          <span class="material-symbols-outlined text-[18px]">chat</span>
+          Request Information
+        </a>
+      </div>
+      {% else %}
+      <div class="glass-card p-5 text-center">
+        <span class="material-symbols-outlined text-[32px] text-slate-400 mb-2 block">gavel</span>
+        <p class="text-sm font-semibold" style="color:var(--text)">No actions available</p>
+        <p class="text-xs text-slate-500 mt-1">This application is not in a reviewable state.</p>
+      </div>
+      {% endif %}
+
+      <!-- Payment info -->
+      {% if application.payment %}
+      <div class="glass-card p-4 text-sm">
+        <h3 class="font-bold mb-2 flex items-center gap-1 text-xs" style="color:var(--text)">
+          <span class="material-symbols-outlined text-[16px] text-primary">payments</span>
+          Payment
+        </h3>
+        <div class="space-y-1 text-xs text-slate-600">
+          <div class="flex justify-between">
+            <span>Amount</span><strong>${{ application.payment.amount }}</strong>
+          </div>
+          <div class="flex justify-between">
+            <span>Status</span>
+            <span class="status-pill {% if application.payment.status == 'PAID' %}s-APPROVED{% else %}s-PENDING_INFO{% endif %} text-[9px]">
+              {{ application.payment.status }}
+            </span>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+    </div>
+  </div>
+
+</div>
+{% endblock %}

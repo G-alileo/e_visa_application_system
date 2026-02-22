@@ -1,0 +1,28 @@
+{
+  "global": {
+    "blocked_nationalities": [],
+    "min_days_before_entry": 7
+  },
+  "visa_types": {
+    "TOURIST_30": {
+      "blocked_nationalities": [],
+      "eligible_nationalities": [],
+      "required_documents": ["PASSPORT", "PHOTO", "BANK_STATEMENT", "TRAVEL_ITINERARY"],
+      "min_days_before_entry": 7,
+      "notes": "eligible_nationalities empty means all nationalities allowed unless blocked"
+    },
+    "BUSINESS_90": {
+      "blocked_nationalities": [],
+      "eligible_nationalities": [],
+      "required_documents": ["PASSPORT", "PHOTO", "INVITATION_LETTER", "BANK_STATEMENT"],
+      "min_days_before_entry": 14
+    },
+    "STUDENT_365": {
+      "blocked_nationalities": [],
+      "eligible_nationalities": [],
+      "required_documents": ["PASSPORT", "PHOTO", "BANK_STATEMENT", "INVITATION_LETTER", "ACCOMMODATION_PROOF"],
+      "min_days_before_entry": 30
+    }
+  },
+  "default_required_documents": ["PASSPORT", "PHOTO"]
+}

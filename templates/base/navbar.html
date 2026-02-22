@@ -1,0 +1,59 @@
+<nav class="glass sticky top-0 z-50 w-full px-6 py-3 border-b border-amber-900/10">
+  <div class="max-w-7xl mx-auto flex items-center justify-between">
+    <!-- Logo -->
+    <a href="/" class="flex items-center gap-3 no-underline">
+      <div class="size-9 flex items-center justify-center bg-primary/10 rounded-lg text-primary">
+        <span class="material-symbols-outlined text-[26px]">public</span>
+      </div>
+      <span class="text-lg font-bold tracking-tight" style="color:var(--text)">E-Visa Portal</span>
+    </a>
+
+    <!-- Nav links (authenticated) -->
+    {% if request.user.is_authenticated %}
+    <div class="hidden md:flex items-center gap-1">
+      {% if is_applicant %}
+        <a href="{% url 'applications:dashboard' %}" class="px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-primary/10 hover:text-primary transition-colors">My Applications</a>
+        <a href="{% url 'applications:create' %}" class="px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-primary/10 hover:text-primary transition-colors">New Application</a>
+      {% endif %}
+      {% if is_officer %}
+        <a href="{% url 'reviews:queue' %}" class="px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-primary/10 hover:text-primary transition-colors">Queue</a>
+        <a href="{% url 'reviews:history' %}" class="px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-primary/10 hover:text-primary transition-colors">History</a>
+      {% endif %}
+      {% if is_supervisor %}
+        <a href="{% url 'reviews:queue' %}" class="px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-primary/10 hover:text-primary transition-colors">Queue</a>
+        <a href="{% url 'visas:supervisor_override' %}" class="px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-primary/10 hover:text-primary transition-colors">Override</a>
+        <a href="{% url 'audit:logs' %}" class="px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-primary/10 hover:text-primary transition-colors">Audit Logs</a>
+        <a href="{% url 'visas:reports' %}" class="px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-primary/10 hover:text-primary transition-colors">Reports</a>
+      {% endif %}
+      {% if is_admin %}
+        <a href="{% url 'visas:visa_types' %}" class="px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-primary/10 hover:text-primary transition-colors">Visa Types</a>
+        <a href="{% url 'visas:reports' %}" class="px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-primary/10 hover:text-primary transition-colors">Reports</a>
+        <a href="{% url 'audit:logs' %}" class="px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-primary/10 hover:text-primary transition-colors">Audit Logs</a>
+      {% endif %}
+    </div>
+
+    <!-- User chip + logout -->
+    <div class="flex items-center gap-3">
+      <div class="hidden sm:block text-right">
+        <p class="text-sm font-bold leading-none" style="color:var(--text)">{{ request.user.email|truncatechars:28 }}</p>
+        <p class="text-xs text-primary/80 mt-0.5 font-semibold uppercase tracking-wide">{{ request.user.role }}</p>
+      </div>
+      <div class="size-9 rounded-full bg-primary/15 flex items-center justify-center text-primary font-bold text-sm border border-primary/20">
+        {{ request.user.email|first|upper }}
+      </div>
+      <form method="post" action="{% url 'accounts:logout' %}">
+        {% csrf_token %}
+        <button type="submit" class="ml-1 p-2 rounded-lg text-slate-500 hover:bg-red-50 hover:text-red-600 transition-colors" title="Sign out">
+          <span class="material-symbols-outlined text-[20px]">logout</span>
+        </button>
+      </form>
+    </div>
+    {% else %}
+    <!-- Unauthenticated -->
+    <div class="flex items-center gap-2">
+      <a href="{% url 'accounts:login' %}" class="btn-secondary text-sm py-2 px-4">Sign In</a>
+      <a href="{% url 'accounts:register' %}" class="btn-primary text-sm py-2 px-4">Register</a>
+    </div>
+    {% endif %}
+  </div>
+</nav>

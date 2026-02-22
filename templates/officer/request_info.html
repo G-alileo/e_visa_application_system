@@ -1,0 +1,73 @@
+{% extends "base/base.html" %}
+{% block title %}Request Information — E-Visa Portal{% endblock %}
+
+{% block content %}
+<div class="max-w-xl mx-auto px-4 py-8">
+
+  <!-- Breadcrumb -->
+  <nav class="text-sm text-slate-500 mb-6 flex items-center gap-1">
+    <a href="{% url 'reviews:queue' %}" class="hover:text-primary transition-colors">Queue</a>
+    <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+    <a href="{% url 'reviews:review' pk=application.pk %}" class="hover:text-primary transition-colors">Review</a>
+    <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+    <span class="font-medium" style="color:var(--text)">Request Info</span>
+  </nav>
+
+  <div class="glass-card p-8 space-y-6">
+    <div class="flex items-center gap-3">
+      <div class="size-10 bg-amber-100 rounded-lg flex items-center justify-center">
+        <span class="material-symbols-outlined text-[22px] text-amber-600">help</span>
+      </div>
+      <div>
+        <h1 class="text-xl font-black" style="color:var(--text)">Request More Information</h1>
+        <p class="text-xs text-slate-500 mt-0.5">{{ application.visa_type.name }}</p>
+      </div>
+    </div>
+
+    <div class="rounded-xl bg-amber-50/60 border border-amber-200/60 p-4 text-xs text-amber-800 flex gap-2">
+      <span class="material-symbols-outlined text-[16px] shrink-0">info</span>
+      The application will move to <strong>Pending Information</strong> status. The applicant will be notified to provide the requested details before their case returns to the review queue.
+    </div>
+
+    {% if can_request %}
+    <form method="post" class="space-y-5">
+      {% csrf_token %}
+
+      {% if form.non_field_errors %}
+      <div class="glass rounded-lg px-4 py-3 text-sm bg-red-50/90 text-red-700">
+        {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+      </div>
+      {% endif %}
+
+      <div class="form-field">
+        <label for="{{ form.note.id_for_label }}">{{ form.note.label }}</label>
+        {{ form.note }}
+        {% for e in form.note.errors %}<span class="form-error">{{ e }}</span>{% endfor %}
+      </div>
+
+      <div class="flex items-center justify-between pt-2">
+        <a href="{% url 'reviews:review' pk=application.pk %}" class="btn-secondary">
+          <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+          Cancel
+        </a>
+        <button type="submit" class="btn-primary"
+          style="background:#d97706"
+          onclick="return confirm('Send this information request to the applicant?')">
+          <span class="material-symbols-outlined text-[18px]">send</span>
+          Send Request
+        </button>
+      </div>
+    </form>
+    {% else %}
+    <div class="text-center py-4">
+      <p class="text-sm text-slate-500">This action is not available for the current application status.</p>
+      <a href="{% url 'reviews:review' pk=application.pk %}" class="btn-secondary mt-4 inline-flex">
+        <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+        Back to Review
+      </a>
+    </div>
+    {% endif %}
+
+  </div>
+</div>
+{% endblock %}

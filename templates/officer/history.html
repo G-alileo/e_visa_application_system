@@ -1,0 +1,72 @@
+{% extends "base/base.html" %}
+{% block title %}Decision History — E-Visa Portal{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto px-4 py-8 space-y-5">
+
+  <div class="flex items-center justify-between flex-wrap gap-4">
+    <div>
+      <h1 class="text-2xl font-black" style="color:var(--text)">Decision History</h1>
+      <p class="text-sm text-slate-500 mt-1">
+        {% if is_supervisor %}All decisions across all officers{% else %}Your past review decisions{% endif %}
+      </p>
+    </div>
+    <a href="{% url 'reviews:queue' %}" class="btn-secondary text-sm py-2">
+      <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+      Back to Queue
+    </a>
+  </div>
+
+  {% if decisions %}
+  <div class="glass-card overflow-hidden">
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="border-b border-primary/10 bg-primary/5">
+          <th class="text-left px-4 py-3 font-semibold text-xs uppercase tracking-wider text-slate-500">Application</th>
+          <th class="text-left px-4 py-3 font-semibold text-xs uppercase tracking-wider text-slate-500">Visa Type</th>
+          <th class="text-left px-4 py-3 font-semibold text-xs uppercase tracking-wider text-slate-500">Decision</th>
+          {% if is_supervisor %}
+          <th class="text-left px-4 py-3 font-semibold text-xs uppercase tracking-wider text-slate-500">Officer</th>
+          {% endif %}
+          <th class="text-left px-4 py-3 font-semibold text-xs uppercase tracking-wider text-slate-500">Date</th>
+          <th class="text-left px-4 py-3 font-semibold text-xs uppercase tracking-wider text-slate-500">Reason</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for decision in decisions %}
+        <tr class="border-b border-primary/5 table-row">
+          <td class="px-4 py-3">
+            <a href="{% url 'reviews:review' pk=decision.application.pk %}"
+               class="text-primary font-mono text-xs hover:underline">
+              {{ decision.application.pk|stringformat:"s"|truncatechars:12 }}
+            </a>
+          </td>
+          <td class="px-4 py-3 text-slate-600">{{ decision.application.visa_type.name }}</td>
+          <td class="px-4 py-3">
+            <span class="status-pill
+              {% if decision.decision == 'APPROVED' %}s-APPROVED
+              {% elif decision.decision == 'REJECTED' %}s-REJECTED
+              {% else %}s-PENDING_INFO{% endif %}">
+              {{ decision.decision }}
+            </span>
+          </td>
+          {% if is_supervisor %}
+          <td class="px-4 py-3 text-xs text-slate-500">{{ decision.reviewer.email }}</td>
+          {% endif %}
+          <td class="px-4 py-3 text-xs text-slate-500 whitespace-nowrap">{{ decision.created_at|date:"N j, Y" }}</td>
+          <td class="px-4 py-3 text-xs text-slate-600 max-w-xs truncate">{{ decision.reason|truncatechars:80 }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="glass-card p-12 text-center">
+    <span class="material-symbols-outlined text-[40px] text-slate-300 block mb-3">history</span>
+    <p class="font-semibold" style="color:var(--text)">No decisions yet</p>
+    <p class="text-sm text-slate-500 mt-1">Your review decisions will appear here.</p>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

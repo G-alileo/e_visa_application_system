@@ -1,0 +1,98 @@
+{% extends "base/base.html" %}
+{% block title %}Override Panel — E-Visa Portal{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 py-8 space-y-6">
+
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-black" style="color:var(--text)">Supervisor Override Panel</h1>
+      <p class="text-sm text-slate-500 mt-1">Review active cases and recently rejected applications</p>
+    </div>
+    <div class="flex gap-2">
+      <a href="{% url 'audit:logs' %}" class="btn-secondary text-sm py-2">
+        <span class="material-symbols-outlined text-[18px]">shield</span>
+        Audit Logs
+      </a>
+      <a href="{% url 'visas:reports' %}" class="btn-secondary text-sm py-2">
+        <span class="material-symbols-outlined text-[18px]">bar_chart</span>
+        Reports
+      </a>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+    <div class="glass-card p-4 text-center">
+      <p class="text-3xl font-black text-primary">{{ escalated|length }}</p>
+      <p class="text-xs text-slate-500 mt-1">Under Review</p>
+    </div>
+    <div class="glass-card p-4 text-center">
+      <p class="text-3xl font-black" style="color:#991b1b">{{ recent_rejected|length }}</p>
+      <p class="text-xs text-slate-500 mt-1">Recently Rejected</p>
+    </div>
+  </div>
+
+  <!-- Escalated (Under Review) queue -->
+  <div>
+    <h2 class="font-bold text-base mb-3" style="color:var(--text)">Active Cases — Under Review</h2>
+    {% if escalated %}
+    <div class="space-y-3">
+      {% for app in escalated %}
+      <div class="glass-card p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="font-bold" style="color:var(--text)">{{ app.visa_type.name }}</span>
+            <span class="status-pill s-{{ app.status }}">{{ app.get_status_display }}</span>
+          </div>
+          <div class="text-xs text-slate-500">
+            {{ app.applicant.email }} &bull; {{ app.nationality|upper }} &bull;
+            {% if app.submitted_at %}Submitted {{ app.submitted_at|timesince }} ago{% endif %}
+          </div>
+        </div>
+        {% if can_take_action %}
+        <a href="{% url 'reviews:review' pk=app.pk %}" class="btn-primary text-sm py-2 shrink-0">
+          <span class="material-symbols-outlined text-[18px]">gavel</span>
+          Act on Case
+        </a>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="glass-card p-8 text-center">
+      <span class="material-symbols-outlined text-[36px] text-green-500 mb-2 block">check_circle</span>
+      <p class="text-sm text-slate-500">No active cases under review.</p>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Recently Rejected -->
+  <div>
+    <h2 class="font-bold text-base mb-3" style="color:var(--text)">Recently Rejected</h2>
+    {% if recent_rejected %}
+    <div class="space-y-3">
+      {% for app in recent_rejected %}
+      <div class="glass-card p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 opacity-80">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="font-semibold text-sm" style="color:var(--text)">{{ app.visa_type.name }}</span>
+            <span class="status-pill s-REJECTED">{{ app.get_status_display }}</span>
+          </div>
+          <p class="text-xs text-slate-500">{{ app.applicant.email }} &bull; {{ app.nationality|upper }}</p>
+        </div>
+        <a href="{% url 'applications:status' pk=app.pk %}" class="btn-secondary text-xs py-1.5 px-3 shrink-0">
+          <span class="material-symbols-outlined text-[14px]">visibility</span>
+          View
+        </a>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-sm text-slate-500 italic pl-1">No recently rejected applications.</p>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}
