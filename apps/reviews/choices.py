@@ -1,7 +1,3 @@
-"""
-Centralised decision choices for the reviews app.
-"""
-
 from django.db import models
 
 

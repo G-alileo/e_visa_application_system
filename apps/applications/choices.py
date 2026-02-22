@@ -1,7 +1,3 @@
-"""
-Centralised status choices for the applications app.
-"""
-
 from django.db import models
 
 

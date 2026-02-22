@@ -1,10 +1,3 @@
-"""Models for the accounts app.
-
-Defines the custom User model that replaces Django's built-in auth.User.
-UUID primary key prevents sequential ID enumeration by external callers.
-Email is the login credential; username is intentionally absent.
-"""
-
 import uuid
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
@@ -13,8 +6,6 @@ from .choices import UserRole
 
 
 class UserManager(BaseUserManager):
-    """Custom manager that uses email instead of username."""
-
     def create_user(self, email: str, password: str = None, **extra_fields):
         if not email:
             raise ValueError("An email address is required.")
@@ -32,24 +23,10 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser, PermissionsMixin):
-    """
-    System-wide user account.
-
-    UUID PK — never exposed as a sequential integer, safe to include in URLs
-    and API responses without leaking record-count information.
-
-    Indexing rationale:
-      - email: unique constraint creates an implicit B-tree index; used on
-        every login query.
-      - role: high-frequency filter used by dashboard queries and permission
-        checks throughout the system.
-    """
-
     id = models.UUIDField(
         primary_key=True,
         default=uuid.uuid4,
         editable=False,
-        help_text="Externally-visible identifier; never auto-increments.",
     )
     email = models.EmailField(
         unique=True,
@@ -76,8 +53,6 @@ class User(AbstractBaseUser, PermissionsMixin):
         verbose_name = "User"
         verbose_name_plural = "Users"
         indexes = [
-            # Compound index supports admin/supervisor queries that filter by
-            # role and order by creation time simultaneously.
             models.Index(fields=["role", "created_at"], name="idx_user_role_created"),
         ]
         constraints = [

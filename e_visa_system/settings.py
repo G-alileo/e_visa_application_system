@@ -1,29 +1,18 @@
-"""
-Django settings for e_visa_system project.
-
-Environment variables are loaded from .env via python-dotenv.
-Required variables raise ImproperlyConfigured on startup so misconfigured
-deployments fail loudly rather than silently using wrong values.
-"""
-
 import os
 import pymysql
 from pathlib import Path
 from dotenv import load_dotenv
 from django.core.exceptions import ImproperlyConfigured
 
-# ─── PyMySQL as MySQLdb replacement ──────────────────────────────────────────
-# pymysql is a pure-Python MySQL client.  Patching it in as MySQLdb lets
-# Django's mysql backend work without the native mysqlclient C extension.
-# The version_info/version spoof satisfies Django's mysqlclient >= 2.2.1 check.
+# pymysql has no mysqlclient version_info attribute; Django 6 gates the mysql
+# backend on mysqlclient >= 2.2.1. Spoofing the version lets pymysql pass that
+# guard without patching Django itself.
 pymysql.version_info = (2, 2, 7, "final", 0)
 pymysql.__version__ = "2.2.7"
 pymysql.install_as_MySQLdb()
 
-# ─── Paths ───────────────────────────────────────────────────────────────────
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Load .env from the project root (one level above this settings file).
 load_dotenv(BASE_DIR / ".env")
 
 
@@ -42,7 +31,6 @@ def _env(key: str, default=None, required: bool = False) -> str:
     return value
 
 
-# ─── Security ────────────────────────────────────────────────────────────────
 SECRET_KEY = _env("SECRET_KEY", required=True)
 DEBUG = _env("DEBUG", default="False").lower() in ("true", "1", "yes")
 ALLOWED_HOSTS = [
@@ -51,7 +39,6 @@ ALLOWED_HOSTS = [
     if h.strip()
 ]
 
-# ─── Application definition ──────────────────────────────────────────────────
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -59,8 +46,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    # Project apps — registered via their AppConfig so the dotted label
-    # apps.<name> is used consistently throughout Django internals.
+    # AppConfig dotted paths are required because all apps live under the apps/
+    # package; using bare app names would break Django's app registry lookup.
     "apps.accounts.apps.AccountsConfig",
     "apps.visas.apps.VisasConfig",
     "apps.applications.apps.ApplicationsConfig",
@@ -99,10 +86,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "e_visa_system.wsgi.application"
 
-# ─── Database — MySQL via PyMySQL ─────────────────────────────────────────────
-# All credentials come from environment variables; no secrets are hardcoded.
-# utf8mb4  ─ full Unicode support (emoji, supplementary CJK, etc.)
-# STRICT_TRANS_TABLES ─ MySQL rejects bad data; no silent coercion.
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
@@ -112,22 +95,16 @@ DATABASES = {
         "HOST": _env("DB_HOST", default="127.0.0.1"),
         "PORT": _env("DB_PORT", default="3306"),
         "OPTIONS": {
-            "charset": "utf8mb4",
-            "sql_mode": "STRICT_TRANS_TABLES",
+            "charset": "utf8mb4",           # full Unicode including emoji / CJK supplements
+            "sql_mode": "STRICT_TRANS_TABLES",  # reject bad data rather than silently coerce
         },
     }
 }
 
-# ─── Custom user model ───────────────────────────────────────────────────────
-# Points to the UUID-based, email-authenticated model in the accounts app.
 AUTH_USER_MODEL = "accounts.User"
 
-# ─── Default primary-key type ────────────────────────────────────────────────
-# BigAutoField for high-growth tables (audit logs, documents, payments).
-# UUID PKs are declared explicitly on externally-visible models.
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# ─── Password validation ─────────────────────────────────────────────────────
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
@@ -135,11 +112,9 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
-# ─── Internationalisation ────────────────────────────────────────────────────
 LANGUAGE_CODE = "en-us"
 TIME_ZONE = "UTC"
 USE_I18N = True
 USE_TZ = True
 
-# ─── Static files ────────────────────────────────────────────────────────────
 STATIC_URL = "static/"

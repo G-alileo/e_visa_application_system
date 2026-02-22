@@ -1,26 +1,9 @@
-"""Models for the visas app.
-
-VisaType is essentially a configuration / look-up table maintained by
-administrators.  Row count stays low (tens, not millions) so a plain
-BigAutoField PK is correct here — no need for UUID.
-"""
-
 from django.db import models
 
 
 class VisaType(models.Model):
-    """
-    Catalogue of visa products offered by the system.
-
-    Indexing rationale:
-      - code: unique lookup used when an applicant selects a visa type by
-        its short code (e.g., from a URL param or form field).
-      - is_active: filtering active types is done on every application-creation
-        page; a dedicated index avoids a full table scan even as the table grows.
-    """
-
-    # BigAutoField comes from DEFAULT_AUTO_FIELD in settings; declared explicitly
-    # here for clarity and migration-stability.
+    # Explicit BigAutoField keeps the PK declaration visible in the model and
+    # prevents a future DEFAULT_AUTO_FIELD change from silently altering this table.
     id = models.BigAutoField(primary_key=True)
 
     code = models.CharField(
@@ -49,7 +32,6 @@ class VisaType(models.Model):
         verbose_name = "Visa Type"
         verbose_name_plural = "Visa Types"
         indexes = [
-            # Supports admin listing sorted/filtered by active flag + name.
             models.Index(fields=["is_active", "name"], name="idx_visatype_active_name"),
         ]
 

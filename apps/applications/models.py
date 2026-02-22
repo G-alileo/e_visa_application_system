@@ -1,14 +1,3 @@
-"""Models for the applications app.
-
-VisaApplication is the central domain object.  Every other model (documents,
-payments, reviews, audit logs) references it.  Design rules enforced here:
-
-  - UUID PK: applications are referenced externally (status URLs, emails).
-  - No CASCADE deletes: we never silently destroy related data.
-  - Soft-delete only: soft_deleted_at is set instead of calling .delete().
-  - Status is indexed for queue and reporting queries.
-"""
-
 import uuid
 from django.conf import settings
 from django.db import models
@@ -17,20 +6,6 @@ from .choices import ApplicationStatus
 
 
 class VisaApplication(models.Model):
-    """
-    A single visa application submitted by an applicant.
-
-    Indexing rationale:
-      - status: officer queue and reporting queries always filter by status.
-      - (applicant, created_at): applicant dashboard paginates their own
-        applications ordered by creation time — compound index covers both.
-      - submitted_at: supervisor SLA dashboards filter/sort by submission date.
-
-    Soft-delete:
-      soft_deleted_at being non-null means the record is logically deleted.
-      Physical rows are retained for audit and compliance purposes.
-    """
-
     id = models.UUIDField(
         primary_key=True,
         default=uuid.uuid4,
@@ -77,12 +52,10 @@ class VisaApplication(models.Model):
         verbose_name = "Visa Application"
         verbose_name_plural = "Visa Applications"
         indexes = [
-            # Applicant dashboard: list own applications newest-first.
             models.Index(
                 fields=["applicant", "created_at"],
                 name="idx_app_applicant_created",
             ),
-            # Supervisor/reporting: filter active (non-deleted) records by status.
             models.Index(
                 fields=["status", "soft_deleted_at"],
                 name="idx_app_status_softdel",

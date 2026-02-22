@@ -1,10 +1,3 @@
-"""Models for the reviews app.
-
-ReviewDecision records each decision made by an officer or supervisor on a
-visa application.  Multiple reviews are possible per application (e.g.,
-initial review → request info → final review).
-"""
-
 from django.conf import settings
 from django.db import models
 
@@ -12,19 +5,6 @@ from .choices import ReviewDecisionChoice
 
 
 class ReviewDecision(models.Model):
-    """
-    A single review decision made by an officer/supervisor.
-
-    BigAutoField PK: review records are internal, high-volume, and never
-    referenced externally by ID.
-
-    Indexing rationale:
-      - decision: reporting queries aggregate outcomes by decision type.
-      - reviewer: officer performance dashboards filter by reviewer.
-      - (application, created_at): timeline views fetch all decisions for
-        one application ordered by time — compound index covers both.
-    """
-
     application = models.ForeignKey(
         "applications.VisaApplication",
         on_delete=models.PROTECT,   # PROTECT: decisions must survive application changes
@@ -52,12 +32,10 @@ class ReviewDecision(models.Model):
         verbose_name = "Review Decision"
         verbose_name_plural = "Review Decisions"
         indexes = [
-            # Application timeline: ordered list of decisions per application.
             models.Index(
                 fields=["application", "created_at"],
                 name="idx_review_app_created",
             ),
-            # Officer workload / performance queries.
             models.Index(
                 fields=["reviewer", "created_at"],
                 name="idx_review_reviewer_created",

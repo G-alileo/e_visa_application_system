@@ -1,7 +1,3 @@
-"""
-Centralised choices for the documents app.
-"""
-
 from django.db import models
 
 

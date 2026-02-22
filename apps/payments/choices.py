@@ -1,7 +1,3 @@
-"""
-Centralised payment-status choices for the payments app.
-"""
-
 from django.db import models
 
 
