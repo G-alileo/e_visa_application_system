@@ -13,13 +13,13 @@ class VisaApplication(models.Model):
     )
     applicant = models.ForeignKey(
         settings.AUTH_USER_MODEL,
-        on_delete=models.PROTECT,   # PROTECT: never silently delete an applicant
+        on_delete=models.PROTECT,   
         related_name="applications",
         db_index=True,
     )
     visa_type = models.ForeignKey(
         "visas.VisaType",
-        on_delete=models.PROTECT,   # PROTECT: preserve historical data if type retired
+        on_delete=models.PROTECT,   
         related_name="applications",
         db_index=True,
     )
@@ -27,7 +27,7 @@ class VisaApplication(models.Model):
         max_length=20,
         choices=ApplicationStatus.choices,
         default=ApplicationStatus.DRAFT,
-        db_index=True,              # officer queue filters heavily by status
+        db_index=True,              
     )
     nationality = models.CharField(
         max_length=2,
@@ -39,12 +39,59 @@ class VisaApplication(models.Model):
     submitted_at = models.DateTimeField(
         null=True,
         blank=True,
-        db_index=True,              # SLA reports filter/sort on submission date
+        db_index=True,              
     )
     soft_deleted_at = models.DateTimeField(
         null=True,
         blank=True,
         help_text="Non-null means this record is logically deleted.",
+    )
+
+    requires_interview = models.BooleanField(
+        default=False,
+        db_index=True,
+        help_text="Indicates whether the application requires an interview before final decision.",
+    )
+    interview_completed = models.BooleanField(
+        default=False,
+        db_index=True,
+        help_text="Tracks whether the scheduled interview has been conducted.",
+    )
+
+    passport_number = models.CharField(
+        max_length=20,
+        null=True,
+        blank=True,
+        db_index=True,
+        help_text="Applicant's passport number.",
+    )
+    passport_expiry = models.DateField(
+        null=True,
+        blank=True,
+        help_text="Passport expiry date.",
+    )
+    place_of_issue = models.CharField(
+        max_length=100,
+        blank=True,
+        default="",
+        help_text="Place where the passport was issued.",
+    )
+    full_name = models.CharField(
+        max_length=255,
+        blank=True,
+        default="",
+        help_text="Applicant's full legal name as on passport.",
+    )
+    date_of_birth = models.DateField(
+        null=True,
+        blank=True,
+        help_text="Applicant's date of birth.",
+    )
+    gender = models.CharField(
+        max_length=10,
+        blank=True,
+        default="",
+        help_text="Applicant's gender.",
     )
 
     class Meta:
