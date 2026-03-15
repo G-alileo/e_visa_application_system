@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>E-Visa Document</title>
+    <style>
+        @page { size: A4; margin: 2cm; }
+        body {
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            color: #1a1a1a;
+            line-height: 1.5;
+        }
+        .header {
+            text-align: center;
+            border-bottom: 3px solid #003366;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #003366;
+            font-size: 28px;
+            margin: 0;
+        }
+        .header p {
+            color: #666;
+            font-size: 14px;
+            margin: 5px 0 0;
+        }
+        .visa-details {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .visa-details th,
+        .visa-details td {
+            text-align: left;
+            padding: 10px 12px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .visa-details th {
+            width: 40%;
+            color: #555;
+            font-weight: 600;
+        }
+        .visa-details td {
+            color: #1a1a1a;
+        }
+        .footer {
+            margin-top: 50px;
+            text-align: center;
+            font-size: 11px;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>ELECTRONIC VISA</h1>
+        <p>Issued by the E-Visa Application System</p>
+    </div>
+
+    <table class="visa-details">
+        <tr>
+            <th>Full Name</th>
+            <td>{{ application.full_name }}</td>
+        </tr>
+        <tr>
+            <th>Passport Number</th>
+            <td>{{ application.passport_number }}</td>
+        </tr>
+        <tr>
+            <th>Passport Expiry</th>
+            <td>{{ application.passport_expiry }}</td>
+        </tr>
+        <tr>
+            <th>Date of Birth</th>
+            <td>{{ application.date_of_birth }}</td>
+        </tr>
+        <tr>
+            <th>Gender</th>
+            <td>{{ application.gender }}</td>
+        </tr>
+        <tr>
+            <th>Nationality</th>
+            <td>{{ application.nationality }}</td>
+        </tr>
+        <tr>
+            <th>Visa Type</th>
+            <td>{{ visa_type.name }}</td>
+        </tr>
+        <tr>
+            <th>Purpose of Travel</th>
+            <td>{{ application.purpose_of_travel }}</td>
+        </tr>
+        <tr>
+            <th>Intended Entry Date</th>
+            <td>{{ application.intended_entry_date }}</td>
+        </tr>
+        <tr>
+            <th>Maximum Stay</th>
+            <td>{{ visa_type.max_stay_days }} days</td>
+        </tr>
+        <tr>
+            <th>Date of Issue</th>
+            <td>{{ issued_date|date:"F j, Y" }}</td>
+        </tr>
+    </table>
+
+    <div class="footer">
+        <p>This document is system-generated and does not require a physical signature.</p>
+        <p>Verify authenticity at the official E-Visa portal.</p>
+    </div>
+</body>
+</html>
