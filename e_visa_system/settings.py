@@ -1,13 +1,7 @@
 import os
-import pymysql
 from pathlib import Path
 from dotenv import load_dotenv
 from django.core.exceptions import ImproperlyConfigured
-
-
-pymysql.version_info = (2, 2, 7, "final", 0)
-pymysql.__version__ = "2.2.7"
-pymysql.install_as_MySQLdb()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
