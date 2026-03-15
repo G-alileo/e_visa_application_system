@@ -22,6 +22,10 @@ from apps.documents.forms import DocumentUploadForm
 from apps.documents.models import ApplicationDocument
 from apps.documents.services import get_document_summary
 from apps.recommendations.services import get_recommendations
+from apps.visas.services.application_service import (
+    get_application_interviews,
+    get_application_visa,
+)
 
 
 class ApplicantDashboardView(LoginRequiredMixin, RoleRequiredMixin, View):
@@ -148,14 +152,19 @@ class ApplicationStatusView(LoginRequiredMixin, View):
             return render(request, "auth/access_denied.html", status=403)
         audit_trail = get_application_audit_trail(pk)
         payment = getattr(app, "payment", None)
+        interviews = get_application_interviews(str(pk)) if is_owner else None
+        visa_doc = get_application_visa(str(pk))
         return render(request, self.template_name, {
             "application": app,
             "audit_trail": audit_trail,
             "payment": payment,
+            "interviews": interviews,
+            "visa_document": visa_doc,
             "can_submit": is_owner and app.status == ApplicationStatus.DRAFT,
             "can_upload": is_owner and app.status in (ApplicationStatus.DRAFT, ApplicationStatus.PENDING_INFO),
             "can_pay": is_owner and app.status == ApplicationStatus.APPROVED,
             "can_re_apply": is_owner and app.status == ApplicationStatus.REJECTED,
+            "can_download_visa": visa_doc is not None,
             "is_owner": is_owner,
             "is_reviewer": is_reviewer,
         })
@@ -201,6 +210,12 @@ class ReApplicationView(LoginRequiredMixin, RoleRequiredMixin, FormView):
             "visa_type": prev.visa_type,
             "nationality": prev.nationality,
             "purpose_of_travel": prev.purpose_of_travel,
+            "intended_entry_date": prev.intended_entry_date,
+            "full_name": prev.full_name,
+            "date_of_birth": prev.date_of_birth,
+            "gender": prev.gender,
+            "passport_number": prev.passport_number,
+            "passport_expiry": prev.passport_expiry,
         }
 
     def form_valid(self, form):

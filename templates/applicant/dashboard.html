@@ -48,6 +48,22 @@
           </div>
         </div>
         <div class="flex items-center gap-2">
+          {% if app.status == "ISSUED" %}
+          <a href="{% url 'visas:visa_download' pk=app.pk %}"
+             class="btn-primary text-xs py-1.5 px-3"
+             onclick="event.stopPropagation()">
+            <span class="material-symbols-outlined text-[16px]">download</span>
+            Visa
+          </a>
+          {% endif %}
+          {% if app.requires_interview and not app.interview_completed %}
+          <a href="{% url 'visas:applicant_interviews' pk=app.pk %}"
+             class="btn-secondary text-xs py-1.5 px-3 border-amber-500 text-amber-700"
+             onclick="event.stopPropagation()">
+            <span class="material-symbols-outlined text-[16px]">event</span>
+            Interview
+          </a>
+          {% endif %}
           <button class="btn-secondary text-xs py-1.5 px-3">
             <span class="material-symbols-outlined text-[16px]">visibility</span>
             View

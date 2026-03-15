@@ -1,0 +1,84 @@
+{% extends "base/base.html" %}
+{% block title %}Interviews — E-Visa Portal{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto px-4 py-8 space-y-6">
+
+  <!-- Breadcrumb -->
+  <nav class="text-sm text-slate-500 flex items-center gap-1">
+    <a href="{% url 'reviews:queue' %}" class="hover:text-primary transition-colors">Queue</a>
+    <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+    <a href="{% url 'reviews:review' pk=application.pk %}" class="hover:text-primary transition-colors">Review</a>
+    <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+    <span class="font-medium" style="color:var(--text)">Interviews</span>
+  </nav>
+
+  <div class="flex items-center justify-between gap-4">
+    <div>
+      <h1 class="text-xl font-black" style="color:var(--text)">Interview History</h1>
+      <p class="text-sm text-slate-500 mt-1">{{ application.visa_type.name }} — {{ application.applicant.email }}</p>
+    </div>
+    <a href="{% url 'visas:schedule_interview' pk=application.pk %}" class="btn-primary">
+      <span class="material-symbols-outlined text-[18px]">add</span>
+      New Interview
+    </a>
+  </div>
+
+  {% if interviews %}
+  <div class="space-y-3">
+    {% for interview in interviews %}
+    <div class="glass-card p-5">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="font-bold text-sm" style="color:var(--text)">
+              {{ interview.interview_datetime|date:"N j, Y — H:i" }}
+            </span>
+            <span class="status-pill {% if interview.status == 'COMPLETED' %}s-APPROVED{% elif interview.status == 'CANCELLED' %}s-REJECTED{% elif interview.status == 'MISSED' %}s-PENDING_INFO{% else %}s-SUBMITTED{% endif %}">
+              {{ interview.get_status_display }}
+            </span>
+          </div>
+          <div class="text-xs text-slate-500 space-y-0.5">
+            <p>Officer: <strong>{{ interview.officer.email }}</strong></p>
+            {% if interview.google_meet_link %}
+            <p>Meet: <a href="{{ interview.google_meet_link }}" target="_blank" class="text-primary hover:underline">{{ interview.google_meet_link|truncatechars:50 }}</a></p>
+            {% endif %}
+            {% if interview.notes %}
+            <p class="italic">{{ interview.notes|truncatechars:120 }}</p>
+            {% endif %}
+          </div>
+        </div>
+        {% if interview.status == "SCHEDULED" %}
+        <div class="flex items-center gap-2">
+          <form method="post" action="{% url 'visas:complete_interview' pk=interview.pk %}">
+            {% csrf_token %}
+            <button type="submit" class="btn-primary text-xs py-1.5 px-3"
+              onclick="return confirm('Mark this interview as completed?')">
+              <span class="material-symbols-outlined text-[16px]">check</span>
+              Complete
+            </button>
+          </form>
+          <form method="post" action="{% url 'visas:cancel_interview' pk=interview.pk %}">
+            {% csrf_token %}
+            <button type="submit" class="btn-danger text-xs py-1.5 px-3"
+              onclick="return confirm('Cancel this interview?')">
+              <span class="material-symbols-outlined text-[16px]">close</span>
+              Cancel
+            </button>
+          </form>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="glass-card p-10 text-center">
+    <span class="material-symbols-outlined text-[40px] text-slate-400 mb-3 block">event_busy</span>
+    <p class="text-sm font-semibold" style="color:var(--text)">No interviews scheduled</p>
+    <p class="text-xs text-slate-500 mt-1">Schedule an interview if further verification is needed.</p>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

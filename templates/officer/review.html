@@ -149,11 +149,60 @@
           Request Information
         </a>
       </div>
+
+      <!-- Schedule Interview -->
+      <div class="glass-card p-5">
+        <h3 class="font-bold text-sm mb-3 flex items-center gap-2" style="color:var(--text)">
+          <span class="material-symbols-outlined text-[18px] text-primary">event</span>
+          Interview
+        </h3>
+        <div class="space-y-2">
+          <a href="{% url 'visas:schedule_interview' pk=application.pk %}" class="btn-secondary w-full justify-center text-sm py-2">
+            <span class="material-symbols-outlined text-[16px]">add</span>
+            Schedule Interview
+          </a>
+          <a href="{% url 'visas:application_interviews' pk=application.pk %}" class="btn-secondary w-full justify-center text-sm py-2">
+            <span class="material-symbols-outlined text-[16px]">list</span>
+            View Interviews
+          </a>
+        </div>
+      </div>
+      {% elif application.status == "APPROVED" %}
+      <!-- Issue Visa (for approved applications) -->
+      <div class="glass-card p-5">
+        <h3 class="font-bold text-sm mb-3 text-green-700 flex items-center gap-2">
+          <span class="material-symbols-outlined text-[18px]">verified</span>
+          Issue Visa
+        </h3>
+        <p class="text-xs text-slate-500 mb-3">Generate and issue the official e-visa document.</p>
+        <form method="post" action="{% url 'visas:issue_visa' pk=application.pk %}"
+          onsubmit="return confirm('Issue visa for this application? This generates the official PDF.')">
+          {% csrf_token %}
+          <button type="submit" class="btn-primary w-full justify-center">
+            <span class="material-symbols-outlined text-[18px]">description</span>
+            Issue Visa
+          </button>
+        </form>
+      </div>
       {% else %}
       <div class="glass-card p-5 text-center">
         <span class="material-symbols-outlined text-[32px] text-slate-400 mb-2 block">gavel</span>
         <p class="text-sm font-semibold" style="color:var(--text)">No actions available</p>
         <p class="text-xs text-slate-500 mt-1">This application is not in a reviewable state.</p>
+      </div>
+      {% endif %}
+
+      <!-- Visa document (if issued) -->
+      {% if application.status == "ISSUED" %}
+      <div class="glass-card p-5">
+        <h3 class="font-bold text-sm mb-3 text-green-700 flex items-center gap-2">
+          <span class="material-symbols-outlined text-[18px]">verified</span>
+          Visa Issued
+        </h3>
+        <a href="{% url 'visas:visa_download' pk=application.pk %}" class="btn-secondary w-full justify-center text-sm py-2">
+          <span class="material-symbols-outlined text-[16px]">download</span>
+          View / Download Visa
+        </a>
       </div>
       {% endif %}
 

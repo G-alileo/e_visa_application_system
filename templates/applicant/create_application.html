@@ -57,6 +57,38 @@
         {% for e in form.purpose_of_travel.errors %}<span class="form-error">{{ e }}</span>{% endfor %}
       </div>
 
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <div class="form-field">
+          <label for="{{ form.full_name.id_for_label }}">Full Name (as on passport)</label>
+          {{ form.full_name }}
+          {% for e in form.full_name.errors %}<span class="form-error">{{ e }}</span>{% endfor %}
+        </div>
+        <div class="form-field">
+          <label for="{{ form.gender.id_for_label }}">Gender</label>
+          {{ form.gender }}
+          {% for e in form.gender.errors %}<span class="form-error">{{ e }}</span>{% endfor %}
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <div class="form-field">
+          <label for="{{ form.date_of_birth.id_for_label }}">Date of Birth</label>
+          {{ form.date_of_birth }}
+          {% for e in form.date_of_birth.errors %}<span class="form-error">{{ e }}</span>{% endfor %}
+        </div>
+        <div class="form-field">
+          <label for="{{ form.passport_number.id_for_label }}">Passport Number</label>
+          {{ form.passport_number }}
+          {% for e in form.passport_number.errors %}<span class="form-error">{{ e }}</span>{% endfor %}
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label for="{{ form.passport_expiry.id_for_label }}">Passport Expiry Date</label>
+        {{ form.passport_expiry }}
+        {% for e in form.passport_expiry.errors %}<span class="form-error">{{ e }}</span>{% endfor %}
+      </div>
+
       <div class="flex items-center justify-between pt-2">
         <a href="{% url 'applications:dashboard' %}" class="btn-secondary">
           <span class="material-symbols-outlined text-[18px]">arrow_back</span>

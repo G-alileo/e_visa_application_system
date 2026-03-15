@@ -2,113 +2,503 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>E-Visa Document</title>
+    <title>E-Visa - {{ visa_number }}</title>
     <style>
-        @page { size: A4; margin: 2cm; }
+        @page {
+            size: A4;
+            margin: 14mm 12mm 12mm 12mm;
+        }
+
         body {
-            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-            color: #1a1a1a;
-            line-height: 1.5;
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: 10pt;
+            color: #1E1409;
+            background: #F8F0DC;
         }
-        .header {
-            text-align: center;
-            border-bottom: 3px solid #003366;
-            padding-bottom: 15px;
-            margin-bottom: 30px;
+
+        .document {
+            border: 2pt solid #B07D2A;
+            padding: 4pt;
+            width: 100%;
+            background: #F8F0DC;
         }
-        .header h1 {
-            color: #003366;
-            font-size: 28px;
-            margin: 0;
+
+        .inner {
+            border: 0.5pt solid #D4AA5A;
+            padding: 8pt;
+            width: 100%;
         }
-        .header p {
-            color: #666;
-            font-size: 14px;
-            margin: 5px 0 0;
-        }
-        .visa-details {
+
+        .top-strip {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            margin-bottom: 6pt;
+            background: #2C1A0A;
+            color: #7A5C2E;
+            font-family: "Courier New", Courier, monospace;
+            font-size: 5.5pt;
+            letter-spacing: 1pt;
+            text-transform: uppercase;
         }
-        .visa-details th,
-        .visa-details td {
-            text-align: left;
-            padding: 10px 12px;
-            border-bottom: 1px solid #e0e0e0;
+
+        .top-strip td {
+            padding: 3pt 4pt;
+            border: 0;
         }
-        .visa-details th {
-            width: 40%;
-            color: #555;
-            font-weight: 600;
+
+        .right {
+            text-align: right;
         }
-        .visa-details td {
-            color: #1a1a1a;
-        }
-        .footer {
-            margin-top: 50px;
+
+        .center {
             text-align: center;
-            font-size: 11px;
-            color: #999;
+        }
+
+        .title-block {
+            text-align: center;
+            padding-bottom: 6pt;
+            border-bottom: 1pt solid #B07D2A;
+            margin-bottom: 5pt;
+        }
+
+        .authority {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 6.5pt;
+            font-weight: bold;
+            letter-spacing: 4pt;
+            text-transform: uppercase;
+            color: #7A5C2E;
+            margin-bottom: 2pt;
+        }
+
+        .title {
+            font-family: "Times New Roman", Times, serif;
+            font-size: 22pt;
+            font-weight: bold;
+            letter-spacing: 6pt;
+            margin: 0;
+            color: #2C1A0A;
+            text-transform: uppercase;
+            line-height: 1;
+        }
+
+        .subtitle {
+            font-family: "Times New Roman", Times, serif;
+            font-size: 9pt;
+            color: #B07D2A;
+            font-style: italic;
+            margin-top: 2pt;
+            letter-spacing: 1pt;
+        }
+
+        .ornament-rule {
+            text-align: center;
+            font-size: 10pt;
+            color: #B07D2A;
+            margin: 4pt 0;
+            letter-spacing: 3pt;
+        }
+
+        .status-banner {
+            background: #1A6B4A;
+            text-align: center;
+            padding: 5pt 0;
+            margin-bottom: 6pt;
+        }
+
+        .status-banner-text {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 7.5pt;
+            font-weight: bold;
+            letter-spacing: 3pt;
+            text-transform: uppercase;
+            color: #ffffff;
+        }
+
+        .ref-band {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 8pt;
+            background: #2C1A0A;
+            color: #F0D898;
+        }
+
+        .ref-band td {
+            padding: 4pt 8pt;
+            border: 0;
+            vertical-align: bottom;
+        }
+
+        .ref-label {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 5.5pt;
+            letter-spacing: 2pt;
+            text-transform: uppercase;
+            color: #7A5C2E;
+        }
+
+        .ref-value {
+            font-family: "Courier New", Courier, monospace;
+            font-size: 11pt;
+            font-weight: bold;
+            letter-spacing: 2pt;
+            text-align: center;
+        }
+
+        .content-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 5pt;
+        }
+
+        .content-table td {
+            vertical-align: top;
+        }
+
+        .photo-cell {
+            width: 36mm;
+            padding-right: 8pt;
+        }
+
+        .photo-box {
+            border: 1.5pt solid #B07D2A;
+            width: 35mm;
+            height: 46mm;
+            text-align: center;
+            background: #EFE3C2;
+            padding-top: 12mm;
+        }
+
+        .photo-icon-text {
+            font-size: 20pt;
+            color: #C9A96E;
+            line-height: 1;
+        }
+
+        .photo-caption {
+            font-size: 6.5pt;
+            color: #6B5333;
+            text-align: center;
+            font-style: italic;
+            margin-top: 3pt;
+            line-height: 1.3;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .section-title {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 6pt;
+            font-weight: bold;
+            letter-spacing: 3pt;
+            text-transform: uppercase;
+            color: #B07D2A;
+            border-bottom: 0.5pt solid #D4AA5A;
+            padding-bottom: 1pt;
+            margin-bottom: 3pt;
+            margin-top: 5pt;
+        }
+
+        .fields-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .fields-table td {
+            width: 50%;
+            padding: 2.5pt 0;
+            border-bottom: 0.5pt solid #E8D5A8;
+            vertical-align: bottom;
+        }
+
+        .half {
+            width: 50%;
+            vertical-align: top;
+            padding-right: 6pt;
+        }
+
+        .half-r {
+            width: 50%;
+            vertical-align: top;
+        }
+
+        .field-label {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 6pt;
+            font-weight: bold;
+            letter-spacing: 1pt;
+            text-transform: uppercase;
+            color: #7A5C2E;
+            line-height: 1.2;
+        }
+
+        .field-value {
+            font-family: "Times New Roman", Times, serif;
+            font-size: 10.5pt;
+            color: #2C1A0A;
+            font-weight: bold;
+            line-height: 1.2;
+        }
+
+        .field-value.highlight {
+            font-size: 12pt;
+            color: #B07D2A;
+        }
+
+        .conditions {
+            border-left: 3pt solid #B07D2A;
+            border-top: 0.5pt solid #D4AA5A;
+            border-right: 0.5pt solid #D4AA5A;
+            border-bottom: 0.5pt solid #D4AA5A;
+            background: #F0E4C0;
+            padding: 5pt 7pt;
+            margin-top: 7pt;
+        }
+
+        .conditions-title {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 6pt;
+            font-weight: bold;
+            letter-spacing: 2pt;
+            text-transform: uppercase;
+            color: #B07D2A;
+            margin-bottom: 3pt;
+        }
+
+        .conditions-text {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 7pt;
+            color: #4A2F10;
+            line-height: 1.55;
+        }
+
+        .signatures {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 8pt;
+            padding-top: 6pt;
+            border-top: 0.5pt solid #D4AA5A;
+        }
+
+        .signatures td {
+            width: 33.33%;
+            vertical-align: top;
+            text-align: center;
+        }
+
+        .sig-line {
+            border-top: 0.5pt solid #7A5C2E;
+            margin: 0 8mm 1pt 8mm;
+            height: 0;
+        }
+
+        .sig-label {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 6pt;
+            letter-spacing: 1.5pt;
+            text-transform: uppercase;
+            color: #6B5333;
+        }
+
+        .sig-value {
+            font-family: "Times New Roman", Times, serif;
+            font-size: 9pt;
+            color: #2C1A0A;
+            margin-top: 1pt;
+            font-weight: bold;
+        }
+
+        .mrz {
+            background: #2C1A0A;
+            padding: 5pt 8pt;
+            margin-top: 8pt;
+            color: #F0D898;
+        }
+
+        .mrz-label {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 5.5pt;
+            letter-spacing: 2pt;
+            color: #7A5C2E;
+            text-transform: uppercase;
+            margin-bottom: 3pt;
+        }
+
+        .mrz-line {
+            font-family: "Courier New", Courier, monospace;
+            font-size: 8pt;
+            letter-spacing: 2pt;
+            line-height: 1.6;
+        }
+
+        .bottom-strip {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 8pt;
+            background: #2C1A0A;
+            color: #7A5C2E;
+            font-family: "Courier New", Courier, monospace;
+            font-size: 5.5pt;
+            letter-spacing: 1pt;
+            text-transform: uppercase;
+        }
+
+        .bottom-strip td {
+            padding: 3pt 4pt;
+            border: 0;
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>ELECTRONIC VISA</h1>
-        <p>Issued by the E-Visa Application System</p>
-    </div>
+    <div class="document">
+        <div class="inner">
+        <table class="top-strip">
+            <tr>
+                <td>OFFICIAL ELECTRONIC TRAVEL DOCUMENT | FORGERY IS A CRIMINAL OFFENCE</td>
+                <td class="right">{% firstof visa_type.name visa_type.code "UNKNOWN" %} | EVISA AUTHORITY</td>
+            </tr>
+        </table>
 
-    <table class="visa-details">
-        <tr>
-            <th>Full Name</th>
-            <td>{{ application.full_name }}</td>
-        </tr>
-        <tr>
-            <th>Passport Number</th>
-            <td>{{ application.passport_number }}</td>
-        </tr>
-        <tr>
-            <th>Passport Expiry</th>
-            <td>{{ application.passport_expiry }}</td>
-        </tr>
-        <tr>
-            <th>Date of Birth</th>
-            <td>{{ application.date_of_birth }}</td>
-        </tr>
-        <tr>
-            <th>Gender</th>
-            <td>{{ application.gender }}</td>
-        </tr>
-        <tr>
-            <th>Nationality</th>
-            <td>{{ application.nationality }}</td>
-        </tr>
-        <tr>
-            <th>Visa Type</th>
-            <td>{{ visa_type.name }}</td>
-        </tr>
-        <tr>
-            <th>Purpose of Travel</th>
-            <td>{{ application.purpose_of_travel }}</td>
-        </tr>
-        <tr>
-            <th>Intended Entry Date</th>
-            <td>{{ application.intended_entry_date }}</td>
-        </tr>
-        <tr>
-            <th>Maximum Stay</th>
-            <td>{{ visa_type.max_stay_days }} days</td>
-        </tr>
-        <tr>
-            <th>Date of Issue</th>
-            <td>{{ issued_date|date:"F j, Y" }}</td>
-        </tr>
-    </table>
+        <div class="title-block">
+            <div class="authority">Electronic Visa Authority</div>
+            <p class="title">E VISA</p>
+            <div class="subtitle">Electronic Travel Authorization</div>
+        </div>
 
-    <div class="footer">
-        <p>This document is system-generated and does not require a physical signature.</p>
-        <p>Verify authenticity at the official E-Visa portal.</p>
+        <div class="ornament-rule">- <> - <> - <> -</div>
+
+        <div class="status-banner">
+            <span class="status-banner-text">Approved And Valid For Entry</span>
+        </div>
+
+        <table class="ref-band">
+            <tr>
+                <td class="ref-label">VISA REFERENCE NO.</td>
+                <td class="ref-value">{{ visa_number|default:"PENDING" }}</td>
+                <td class="ref-label right">VISA CATEGORY: {% firstof visa_type.name visa_type.code "UNKNOWN" %}</td>
+            </tr>
+        </table>
+
+        <table class="content-table">
+            <tr>
+                <td class="photo-cell">
+                    <div class="photo-box">
+                        <div class="photo-icon-text">o</div>
+                        <div class="photo-caption">35 x 45 mm<br/>Biometric photo</div>
+                    </div>
+                </td>
+                <td>
+                    <div class="section-title">PERSONAL INFORMATION</div>
+                    <table class="fields-table">
+                        <tr>
+                            <td class="half">
+                                <div class="field-label">Surname / Given Names</div>
+                                <div class="field-value">{% firstof application.full_name applicant.email "-" %}</div>
+                            </td>
+                            <td class="half-r">
+                                <div class="field-label">Date of Birth</div>
+                                <div class="field-value">{{ application.date_of_birth|default:"-" }}</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="half">
+                                <div class="field-label">Nationality</div>
+                                <div class="field-value">{{ application.nationality|default:"-" }}</div>
+                            </td>
+                            <td class="half-r">
+                                <div class="field-label">Gender</div>
+                                <div class="field-value">{{ application.gender|default:"-" }}</div>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <div class="section-title">TRAVEL DOCUMENT</div>
+                    <table class="fields-table">
+                        <tr>
+                            <td class="half">
+                                <div class="field-label">Passport Number</div>
+                                <div class="field-value">{{ application.passport_number|default:"-" }}</div>
+                            </td>
+                            <td class="half-r">
+                                <div class="field-label">Passport Expiry Date</div>
+                                <div class="field-value">{{ application.passport_expiry|default:"-" }}</div>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <div class="section-title">VISA DETAILS</div>
+                    <table class="fields-table">
+                        <tr>
+                            <td class="half">
+                                <div class="field-label">Visa Category</div>
+                                <div class="field-value highlight">{{ visa_type.name }}</div>
+                            </td>
+                            <td class="half-r">
+                                <div class="field-label">Maximum Duration Of Stay</div>
+                                <div class="field-value">{{ visa_type.max_stay_days|default:"-" }}{% if visa_type.max_stay_days %} Days{% endif %}</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="half">
+                                <div class="field-label">Purpose of Travel</div>
+                                <div class="field-value">{{ application.purpose_of_travel|default:"-" }}</div>
+                            </td>
+                            <td class="half-r">
+                                <div class="field-label">Intended Entry Date</div>
+                                <div class="field-value">{{ application.intended_entry_date|default:"-" }}</div>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+
+        <div class="conditions">
+            <div class="conditions-title">Conditions &amp; Validity</div>
+            <div class="conditions-text">
+                This visa is issued subject to the laws and regulations of the issuing authority. The holder must comply with all conditions of stay.
+                Presentation of this document does not guarantee entry. Immigration officers retain authority to refuse entry.
+                This document is non-transferable. Any alteration renders it void.
+            </div>
+        </div>
+
+        <table class="signatures">
+            <tr>
+                <td>
+                    <div class="sig-line"></div>
+                    <div class="sig-label">Issuing Authority</div>
+                    <div class="sig-value">E-Visa Authority</div>
+                </td>
+                <td>
+                    <div class="sig-label">Date of Issue</div>
+                    <div class="sig-value">{{ issued_date|date:"F j, Y"|default:"-" }}</div>
+                </td>
+                <td>
+                    <div class="sig-line"></div>
+                    <div class="sig-label">Holder Signature</div>
+                    <div class="sig-value">&nbsp;</div>
+                </td>
+            </tr>
+        </table>
+
+        <div class="mrz">
+            <div class="mrz-label">Machine Readable Zone - Do Not Alter</div>
+            {% if application.passport_number and application.nationality and visa_number %}
+            <div class="mrz-line">{{ application.passport_number|upper }}EVA{{ visa_type.code|default:"UNK"|upper|slice:":3" }}&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;</div>
+            <div class="mrz-line">{{ visa_number|upper }}&lt;&lt;{{ application.nationality|upper|slice:":3" }}&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;</div>
+            {% else %}
+            <div class="mrz-line">&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;</div>
+            <div class="mrz-line">&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;</div>
+            {% endif %}
+        </div>
+
+        <table class="bottom-strip">
+            <tr>
+                <td>OFFICIAL USE ONLY | NOT FOR REPRODUCTION</td>
+                <td class="center">VERIFY AT: EVISA-PORTAL.GOV</td>
+                <td class="right">{{ visa_number }}</td>
+            </tr>
+        </table>
+        </div>
     </div>
 </body>
 </html>

@@ -199,6 +199,46 @@
       </div>
       {% endif %}
 
+      <!-- Interview info -->
+      {% if application.requires_interview and is_owner %}
+      <div class="glass-card p-5">
+        <h3 class="font-bold text-sm mb-3 flex items-center gap-2" style="color:var(--text)">
+          <span class="material-symbols-outlined text-[18px] text-primary">event</span>
+          Interview
+        </h3>
+        {% if application.interview_completed %}
+        <div class="flex items-center gap-2 mb-3">
+          <span class="material-symbols-outlined text-[18px] text-green-600">check_circle</span>
+          <span class="text-sm font-semibold text-green-700">Interview Completed</span>
+        </div>
+        {% else %}
+        <div class="flex items-center gap-2 mb-3">
+          <span class="material-symbols-outlined text-[18px] text-amber-600">schedule</span>
+          <span class="text-sm font-semibold text-amber-700">Interview Required</span>
+        </div>
+        {% endif %}
+        <a href="{% url 'visas:applicant_interviews' pk=application.pk %}" class="btn-secondary text-xs py-2 w-full justify-center">
+          <span class="material-symbols-outlined text-[16px]">visibility</span>
+          View Interviews
+        </a>
+      </div>
+      {% endif %}
+
+      <!-- Visa download -->
+      {% if can_download_visa %}
+      <div class="glass-card p-5">
+        <h3 class="font-bold text-sm mb-3 flex items-center gap-2 text-green-700">
+          <span class="material-symbols-outlined text-[18px]">verified</span>
+          Visa Issued
+        </h3>
+        <p class="text-xs text-slate-500 mb-3">Your e-visa is ready for download.</p>
+        <a href="{% url 'visas:visa_download' pk=application.pk %}" class="btn-primary text-xs py-2 w-full justify-center">
+          <span class="material-symbols-outlined text-[16px]">download</span>
+          Download Visa
+        </a>
+      </div>
+      {% endif %}
+
       <!-- Review decisions -->
       {% if application.review_decisions.all %}
       <div class="glass-card p-5">
