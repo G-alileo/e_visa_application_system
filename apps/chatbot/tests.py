@@ -43,4 +43,4 @@ class ChatbotMessageViewTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["answer"], "Sample answer")
-        self.assertEqual(len(response.json()["sources"]), 1)
+        self.assertNotIn("sources", response.json())

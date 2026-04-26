@@ -77,18 +77,6 @@
       bubble.textContent = message.text;
       container.appendChild(bubble);
 
-      if (!isUser && Array.isArray(message.sources) && message.sources.length > 0) {
-        const sources = document.createElement("div");
-        sources.className = "mt-1 ml-1 text-[11px] text-slate-500 space-y-1";
-        message.sources.slice(0, 3).forEach((source) => {
-          const item = document.createElement("p");
-          const idx = Number.isInteger(source.chunk_index) ? source.chunk_index + 1 : "?";
-          item.textContent = `Source ${idx} (${source.score ?? "-"}) - ${source.excerpt ?? ""}`;
-          sources.appendChild(item);
-        });
-        container.appendChild(sources);
-      }
-
       messagesEl.appendChild(container);
       messagesEl.scrollTop = messagesEl.scrollHeight;
     }
@@ -99,7 +87,6 @@
         renderMessage({
           role: "assistant",
           text: "Welcome to E-Visa Assistant. I can help with visa requirements, application steps, fees, and status guidance.",
-          sources: [],
         });
         return;
       }
@@ -130,7 +117,7 @@
     }
 
     async function sendMessage(text) {
-      pushMessage({ role: "user", text, sources: [] });
+      pushMessage({ role: "user", text });
       showTyping();
 
       try {
@@ -149,7 +136,6 @@
           pushMessage({
             role: "assistant",
             text: payload.error || "Unable to respond right now. Please try again.",
-            sources: [],
           });
           return;
         }
@@ -157,14 +143,12 @@
         pushMessage({
           role: "assistant",
           text: payload.answer || "No answer returned.",
-          sources: Array.isArray(payload.sources) ? payload.sources : [],
         });
       } catch {
         hideTyping();
         pushMessage({
           role: "assistant",
           text: "Network error while contacting the assistant. Please try again.",
-          sources: [],
         });
       }
     }

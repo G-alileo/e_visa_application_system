@@ -31,6 +31,5 @@ class ChatbotMessageView(View):
         return JsonResponse(
             {
                 "answer": result.answer,
-                "sources": result.sources,
             }
         )
