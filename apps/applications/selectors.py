@@ -13,8 +13,8 @@ def get_applicant_applications(user):
     )
 
 
-def get_officer_queue():
-    return (
+def get_officer_queue(visa_type_id=None):
+    queue = (
         VisaApplication.objects
         .filter(
             status=ApplicationStatus.UNDER_REVIEW,
@@ -23,10 +23,13 @@ def get_officer_queue():
         .select_related("applicant", "visa_type")
         .order_by("submitted_at")
     )
+    if visa_type_id is not None:
+        queue = queue.filter(visa_type_id=visa_type_id)
+    return queue
 
 
-def get_pending_info_queue():
-    return (
+def get_pending_info_queue(visa_type_id=None):
+    queue = (
         VisaApplication.objects
         .filter(
             status=ApplicationStatus.PENDING_INFO,
@@ -35,6 +38,9 @@ def get_pending_info_queue():
         .select_related("applicant", "visa_type")
         .order_by("submitted_at")
     )
+    if visa_type_id is not None:
+        queue = queue.filter(visa_type_id=visa_type_id)
+    return queue
 
 
 def get_application_with_documents(application_id):

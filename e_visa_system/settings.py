@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     "apps.recommendations.apps.RecommendationsConfig",
     "rest_framework",
     "drf_spectacular",
+    "apps.chatbot.apps.ChatbotConfig",
 ]
 
 MIDDLEWARE = [

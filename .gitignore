@@ -24,4 +24,9 @@ __pycache__/
 **/migrations/*.py
 !**/migrations/__init__.py
 
+# vector database
+/apps/chatbot/vector_database/chroma_store/
+
+# pycache
+**/__pycache__/
 

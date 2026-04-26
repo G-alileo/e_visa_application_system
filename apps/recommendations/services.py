@@ -87,11 +87,19 @@ def _visa_type_recommendations(application) -> list[Recommendation]:
     recs = []
 
     keyword_map = {
-        "business": "BUSINESS_90",
-        "work": "BUSINESS_90",
-        "study": "STUDENT_365",
-        "student": "STUDENT_365",
-        "education": "STUDENT_365",
+        "business": "BUSINESS",
+        "work": "WORK",
+        "job": "WORK",
+        "employment": "WORK",
+        "study": "STUDENT",
+        "student": "STUDENT",
+        "education": "STUDENT",
+        "medical": "MEDICAL",
+        "treatment": "MEDICAL",
+        "conference": "CONFERENCE",
+        "seminar": "CONFERENCE",
+        "family": "FAMILY_VISIT",
+        "relative": "FAMILY_VISIT",
     }
 
     for keyword, suggested_code in keyword_map.items():

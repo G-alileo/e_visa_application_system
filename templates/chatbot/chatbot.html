@@ -1,0 +1,213 @@
+<div id="chatbot-widget" class="fixed bottom-6 right-6 z-[80]">
+  <button id="chatbot-toggle"
+          type="button"
+          aria-label="Open chatbot"
+          class="h-14 w-14 rounded-full bg-primary text-white shadow-lg border border-primary-dark/30 flex items-center justify-center hover:bg-primary-dark transition-colors">
+    <span class="material-symbols-outlined text-[26px]">smart_toy</span>
+  </button>
+
+  <section id="chatbot-panel"
+           class="hidden mt-3 w-[350px] max-w-[calc(100vw-2rem)] glass-card overflow-hidden border border-primary/20 shadow-2xl">
+    <header class="px-4 py-3 bg-primary/10 border-b border-primary/15 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <span class="material-symbols-outlined text-[20px] text-primary">support_agent</span>
+        <div>
+          <p class="font-bold text-sm" style="color:var(--text)">E-Visa Assistant</p>
+          <p class="text-[11px] text-slate-500">Knowledge-base powered</p>
+        </div>
+      </div>
+      <button id="chatbot-close" type="button" class="text-slate-500 hover:text-slate-700">
+        <span class="material-symbols-outlined text-[20px]">close</span>
+      </button>
+    </header>
+
+    <div id="chatbot-messages" class="h-80 overflow-y-auto p-3 space-y-3 bg-white/40"></div>
+
+    <form id="chatbot-form" class="p-3 border-t border-primary/10 bg-white/60">
+      {% csrf_token %}
+      <div class="flex items-end gap-2">
+        <textarea id="chatbot-input"
+                  rows="2"
+                  maxlength="4000"
+                  placeholder="Ask about visa requirements, process, or statuses..."
+                  class="flex-1 text-sm border border-primary/20 rounded-lg bg-white/80 px-3 py-2 resize-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:outline-none"
+                  style="font-family:inherit"></textarea>
+        <button type="submit" class="btn-primary px-3 py-2">
+          <span class="material-symbols-outlined text-[18px]">send</span>
+        </button>
+      </div>
+    </form>
+  </section>
+</div>
+
+<script>
+  (() => {
+    const widget = document.getElementById("chatbot-widget");
+    if (!widget) return;
+
+    const toggleButton = document.getElementById("chatbot-toggle");
+    const closeButton = document.getElementById("chatbot-close");
+    const panel = document.getElementById("chatbot-panel");
+    const form = document.getElementById("chatbot-form");
+    const input = document.getElementById("chatbot-input");
+    const messagesEl = document.getElementById("chatbot-messages");
+    const csrfInput = form.querySelector("input[name='csrfmiddlewaretoken']");
+    const endpoint = "{% url 'chatbot:message' %}";
+    const storageKey = "evisa-chatbot-state-v1";
+
+    const state = {
+      isOpen: false,
+      messages: [],
+    };
+
+    function saveState() {
+      localStorage.setItem(storageKey, JSON.stringify(state));
+    }
+
+    function loadState() {
+      const raw = localStorage.getItem(storageKey);
+      if (!raw) return;
+      try {
+        const parsed = JSON.parse(raw);
+        state.isOpen = Boolean(parsed.isOpen);
+        state.messages = Array.isArray(parsed.messages) ? parsed.messages.slice(-30) : [];
+      } catch {
+        localStorage.removeItem(storageKey);
+      }
+    }
+
+    function setPanelOpen(open) {
+      state.isOpen = open;
+      panel.classList.toggle("hidden", !open);
+      saveState();
+      if (open) input.focus();
+    }
+
+    function renderMessage(message) {
+      const container = document.createElement("div");
+      const isUser = message.role === "user";
+      container.className = isUser ? "flex justify-end" : "flex justify-start";
+
+      const bubble = document.createElement("div");
+      bubble.className = isUser
+        ? "max-w-[85%] rounded-2xl rounded-br-sm bg-primary text-white px-3 py-2 text-sm"
+        : "max-w-[90%] rounded-2xl rounded-bl-sm bg-white border border-primary/15 text-slate-700 px-3 py-2 text-sm";
+      bubble.textContent = message.text;
+      container.appendChild(bubble);
+
+      if (!isUser && Array.isArray(message.sources) && message.sources.length > 0) {
+        const sources = document.createElement("div");
+        sources.className = "mt-1 ml-1 text-[11px] text-slate-500 space-y-1";
+        message.sources.slice(0, 3).forEach((source) => {
+          const item = document.createElement("p");
+          const idx = Number.isInteger(source.chunk_index) ? source.chunk_index + 1 : "?";
+          item.textContent = `Source ${idx} (${source.score ?? "-"}) - ${source.excerpt ?? ""}`;
+          sources.appendChild(item);
+        });
+        container.appendChild(sources);
+      }
+
+      messagesEl.appendChild(container);
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+
+    function renderAllMessages() {
+      messagesEl.innerHTML = "";
+      if (state.messages.length === 0) {
+        renderMessage({
+          role: "assistant",
+          text: "Hi! I can answer questions using the E-Visa knowledge base.",
+          sources: [],
+        });
+        return;
+      }
+      state.messages.forEach(renderMessage);
+    }
+
+    function pushMessage(message) {
+      state.messages.push(message);
+      state.messages = state.messages.slice(-30);
+      saveState();
+      renderMessage(message);
+    }
+
+    function showTyping() {
+      const typing = document.createElement("div");
+      typing.id = "chatbot-typing";
+      typing.className = "flex justify-start";
+      typing.innerHTML = `
+        <div class="rounded-2xl rounded-bl-sm bg-white border border-primary/15 text-slate-500 px-3 py-2 text-sm">
+          Assistant is typing...
+        </div>`;
+      messagesEl.appendChild(typing);
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+
+    function hideTyping() {
+      const typing = document.getElementById("chatbot-typing");
+      if (typing) typing.remove();
+    }
+
+    async function sendMessage(text) {
+      pushMessage({ role: "user", text, sources: [] });
+      showTyping();
+
+      try {
+        const response = await fetch(endpoint, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": csrfInput ? csrfInput.value : "",
+          },
+          body: JSON.stringify({ message: text }),
+        });
+        const payload = await response.json();
+        hideTyping();
+
+        if (!response.ok) {
+          pushMessage({
+            role: "assistant",
+            text: payload.error || "Unable to respond right now. Please try again.",
+            sources: [],
+          });
+          return;
+        }
+
+        pushMessage({
+          role: "assistant",
+          text: payload.answer || "No answer returned.",
+          sources: Array.isArray(payload.sources) ? payload.sources : [],
+        });
+      } catch {
+        hideTyping();
+        pushMessage({
+          role: "assistant",
+          text: "Network error while contacting the assistant. Please try again.",
+          sources: [],
+        });
+      }
+    }
+
+    toggleButton.addEventListener("click", () => setPanelOpen(!state.isOpen));
+    closeButton.addEventListener("click", () => setPanelOpen(false));
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const text = input.value.trim();
+      if (!text) return;
+      input.value = "";
+      await sendMessage(text);
+    });
+
+    input.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        form.requestSubmit();
+      }
+    });
+
+    loadState();
+    renderAllMessages();
+    setPanelOpen(state.isOpen);
+  })();
+</script>

@@ -4,31 +4,61 @@
     "min_days_before_entry": 7
   },
   "visa_types": {
-    "TOURIST_30": {
+    "TOURIST": {
       "blocked_nationalities": [],
       "eligible_nationalities": [],
       "required_documents": ["PASSPORT", "PHOTO", "BANK_STATEMENT", "TRAVEL_ITINERARY"],
       "min_days_before_entry": 7,
       "notes": "eligible_nationalities empty means all nationalities allowed unless blocked"
     },
-    "BUSINESS_90": {
+    "BUSINESS": {
       "blocked_nationalities": [],
       "eligible_nationalities": [],
       "required_documents": ["PASSPORT", "PHOTO", "INVITATION_LETTER", "BANK_STATEMENT"],
       "min_days_before_entry": 14
     },
-    "STUDENT_365": {
+    "STUDENT": {
       "blocked_nationalities": [],
       "eligible_nationalities": [],
       "required_documents": ["PASSPORT", "PHOTO", "BANK_STATEMENT", "INVITATION_LETTER", "ACCOMMODATION_PROOF"],
       "min_days_before_entry": 30
     },
-    "Nonimmigrant": {
+    "NONIMMIGRANT": {
       "blocked_nationalities": [],
       "eligible_nationalities": [],
       "required_documents": ["PASSPORT", "PHOTO", "BANK_STATEMENT"],
       "min_days_before_entry": 7,
       "notes": "eligible_nationalities empty means all nationalities allowed unless blocked"
+    },
+    "TRANSIT": {
+      "blocked_nationalities": [],
+      "eligible_nationalities": [],
+      "required_documents": ["PASSPORT", "PHOTO", "TRAVEL_ITINERARY"],
+      "min_days_before_entry": 3
+    },
+    "MEDICAL": {
+      "blocked_nationalities": [],
+      "eligible_nationalities": [],
+      "required_documents": ["PASSPORT", "PHOTO", "BANK_STATEMENT", "INVITATION_LETTER", "ACCOMMODATION_PROOF"],
+      "min_days_before_entry": 10
+    },
+    "CONFERENCE": {
+      "blocked_nationalities": [],
+      "eligible_nationalities": [],
+      "required_documents": ["PASSPORT", "PHOTO", "INVITATION_LETTER", "TRAVEL_ITINERARY", "BANK_STATEMENT"],
+      "min_days_before_entry": 10
+    },
+    "FAMILY_VISIT": {
+      "blocked_nationalities": [],
+      "eligible_nationalities": [],
+      "required_documents": ["PASSPORT", "PHOTO", "INVITATION_LETTER", "ACCOMMODATION_PROOF", "BANK_STATEMENT"],
+      "min_days_before_entry": 7
+    },
+    "WORK": {
+      "blocked_nationalities": [],
+      "eligible_nationalities": [],
+      "required_documents": ["PASSPORT", "PHOTO", "INVITATION_LETTER", "BANK_STATEMENT", "ACCOMMODATION_PROOF"],
+      "min_days_before_entry": 21
     }
   },
   "default_required_documents": ["PASSPORT", "PHOTO"]

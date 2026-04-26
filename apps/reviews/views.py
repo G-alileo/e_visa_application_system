@@ -18,6 +18,7 @@ from apps.applications.selectors import (
 from apps.reviews.forms import DecisionReasonForm, RequestInfoForm
 from apps.reviews.models import ReviewDecision
 from apps.reviews.services import approve_application, reject_application, request_more_info
+from apps.visas.models import VisaType
 
 
 REVIEWER_ROLES = [UserRole.OFFICER, UserRole.SUPERVISOR]
@@ -28,11 +29,27 @@ class OfficerQueueView(LoginRequiredMixin, RoleRequiredMixin, View):
     template_name = "officer/queue.html"
 
     def get(self, request):
-        queue = get_officer_queue()
-        pending_info = get_pending_info_queue()
+        selected_visa_type_id = (request.GET.get("visa_type") or "").strip()
+        visa_type_filter_id = int(selected_visa_type_id) if selected_visa_type_id.isdigit() else None
+
+        visa_type_filters = VisaType.objects.filter(is_active=True).order_by("name")
+        if (
+            visa_type_filter_id is not None
+            and not visa_type_filters.filter(pk=visa_type_filter_id).exists()
+        ):
+            visa_type_filter_id = None
+            selected_visa_type_id = ""
+
+        if visa_type_filter_id is None:
+            selected_visa_type_id = ""
+
+        queue = get_officer_queue(visa_type_id=visa_type_filter_id)
+        pending_info = get_pending_info_queue(visa_type_id=visa_type_filter_id)
         return render(request, self.template_name, {
             "queue": queue,
             "pending_info_queue": pending_info,
+            "visa_type_filters": visa_type_filters,
+            "selected_visa_type_id": selected_visa_type_id,
             "is_supervisor": request.user.role == UserRole.SUPERVISOR,
         })
 

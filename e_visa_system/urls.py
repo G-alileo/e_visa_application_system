@@ -27,6 +27,7 @@ urlpatterns = [
     path("reviews/", include("apps.reviews.urls", namespace="reviews")),
     path("audit/", include("apps.audit.urls", namespace="audit")),
     path("visas/", include("apps.visas.urls", namespace="visas")),
+    path("chatbot/", include("apps.chatbot.urls", namespace="chatbot")),
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path(
         "api/docs/",

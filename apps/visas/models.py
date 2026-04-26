@@ -13,7 +13,7 @@ class VisaType(models.Model):
         max_length=20,
         unique=True,
         db_index=True,          
-        help_text="Short unique code for this visa type, e.g. TOURIST_30.",
+        help_text="Short unique code for this visa type, e.g. TOURIST.",
     )
     name = models.CharField(max_length=120)
     description = models.TextField(blank=True, default="")
