@@ -13,7 +13,7 @@
         <span class="material-symbols-outlined text-[20px] text-primary">support_agent</span>
         <div>
           <p class="font-bold text-sm" style="color:var(--text)">E-Visa Assistant</p>
-          <p class="text-[11px] text-slate-500">Knowledge-base powered</p>
+          <p class="text-[11px] text-slate-500">Welcome, I am here to help</p>
         </div>
       </div>
       <button id="chatbot-close" type="button" class="text-slate-500 hover:text-slate-700">
@@ -53,33 +53,15 @@
     const messagesEl = document.getElementById("chatbot-messages");
     const csrfInput = form.querySelector("input[name='csrfmiddlewaretoken']");
     const endpoint = "{% url 'chatbot:message' %}";
-    const storageKey = "evisa-chatbot-state-v1";
 
     const state = {
       isOpen: false,
       messages: [],
     };
 
-    function saveState() {
-      localStorage.setItem(storageKey, JSON.stringify(state));
-    }
-
-    function loadState() {
-      const raw = localStorage.getItem(storageKey);
-      if (!raw) return;
-      try {
-        const parsed = JSON.parse(raw);
-        state.isOpen = Boolean(parsed.isOpen);
-        state.messages = Array.isArray(parsed.messages) ? parsed.messages.slice(-30) : [];
-      } catch {
-        localStorage.removeItem(storageKey);
-      }
-    }
-
     function setPanelOpen(open) {
       state.isOpen = open;
       panel.classList.toggle("hidden", !open);
-      saveState();
       if (open) input.focus();
     }
 
@@ -116,7 +98,7 @@
       if (state.messages.length === 0) {
         renderMessage({
           role: "assistant",
-          text: "Hi! I can answer questions using the E-Visa knowledge base.",
+          text: "Welcome to E-Visa Assistant. I can help with visa requirements, application steps, fees, and status guidance.",
           sources: [],
         });
         return;
@@ -127,7 +109,6 @@
     function pushMessage(message) {
       state.messages.push(message);
       state.messages = state.messages.slice(-30);
-      saveState();
       renderMessage(message);
     }
 
@@ -206,7 +187,6 @@
       }
     });
 
-    loadState();
     renderAllMessages();
     setPanelOpen(state.isOpen);
   })();
